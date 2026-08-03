@@ -1,0 +1,243 @@
+{
+  "dataNote": "2026年7月25日時点のスナップショット（出典：ポイ活比較ブログ「チリツモ！」掲載値／手動反映・自動巡回ではありません）",
+  "sites": [
+    {
+      "slug": "hapitas",
+      "name": "ハピタス",
+      "colorHex": "#f97316",
+      "pointRate": 1
+    },
+    {
+      "slug": "moppy",
+      "name": "モッピー",
+      "colorHex": "#ec4899",
+      "pointRate": 1
+    },
+    {
+      "slug": "chobirich",
+      "name": "ちょびリッチ",
+      "colorHex": "#10b981",
+      "pointRate": 1
+    },
+    {
+      "slug": "powl",
+      "name": "Powl",
+      "colorHex": "#14b8a6",
+      "pointRate": 1
+    },
+    {
+      "slug": "pointincome",
+      "name": "ポイントインカム",
+      "colorHex": "#8b5cf6",
+      "pointRate": 0.1
+    },
+    {
+      "slug": "coincome",
+      "name": "コインカム",
+      "colorHex": "#fb923c",
+      "pointRate": 1
+    },
+    {
+      "slug": "warau",
+      "name": "ワラウ",
+      "colorHex": "#eab308",
+      "pointRate": 1
+    },
+    {
+      "slug": "ecnavi",
+      "name": "ECナビ",
+      "colorHex": "#f59e0b",
+      "pointRate": 1
+    },
+    {
+      "slug": "amefri",
+      "name": "アメフリ",
+      "colorHex": "#22c55e",
+      "pointRate": 1
+    },
+    {
+      "slug": "pointtown",
+      "name": "ポイントタウン",
+      "colorHex": "#0072bc",
+      "pointRate": 1
+    }
+  ],
+  "campaigns": [
+    {
+      "id": 1,
+      "canonicalName": "楽天カード",
+      "category": "card",
+      "rewardType": "fixed",
+      "offers": [
+        {
+          "siteSlug": "hapitas",
+          "value": 10700,
+          "guaranteed": false,
+          "firstTimeOnly": true
+        },
+        {
+          "siteSlug": "moppy",
+          "value": 10700,
+          "guaranteed": false,
+          "firstTimeOnly": true
+        },
+        {
+          "siteSlug": "chobirich",
+          "value": 4700,
+          "guaranteed": false,
+          "firstTimeOnly": true
+        },
+        {
+          "siteSlug": "powl",
+          "value": 4700,
+          "guaranteed": false,
+          "firstTimeOnly": true
+        },
+        {
+          "siteSlug": "pointincome",
+          "value": 4000,
+          "guaranteed": true,
+          "firstTimeOnly": true
+        },
+        {
+          "siteSlug": "coincome",
+          "value": 4000,
+          "guaranteed": false,
+          "firstTimeOnly": true
+        },
+        {
+          "siteSlug": "warau",
+          "value": 4000,
+          "guaranteed": false,
+          "firstTimeOnly": true
+        },
+        {
+          "siteSlug": "ecnavi",
+          "value": 4000,
+          "guaranteed": false,
+          "firstTimeOnly": true
+        },
+        {
+          "siteSlug": "amefri",
+          "value": 4000,
+          "guaranteed": false,
+          "firstTimeOnly": true
+        },
+        {
+          "siteSlug": "pointtown",
+          "value": 476,
+          "guaranteed": false,
+          "firstTimeOnly": true
+        }
+      ],
+      "history": [
+        {
+          "date": "2026-01-01",
+          "value": 9000
+        },
+        {
+          "date": "2026-03-01",
+          "value": 9000
+        },
+        {
+          "date": "2026-05-01",
+          "value": 9500
+        },
+        {
+          "date": "2026-07-01",
+          "value": 9500
+        },
+        {
+          "date": "2026-07-10",
+          "value": 10000
+        },
+        {
+          "date": "2026-07-25",
+          "value": 10700
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "canonicalName": "三井住友カード（NL）",
+      "category": "unknown",
+      "rewardType": "fixed",
+      "offers": [
+        {
+          "siteSlug": "chobirich",
+          "value": 17000,
+          "guaranteed": false,
+          "firstTimeOnly": true,
+          "sourceUrl": "https://yurui-okozukai.com/5611/smbccard/"
+        },
+        {
+          "siteSlug": "pointincome",
+          "value": 15000,
+          "guaranteed": false,
+          "firstTimeOnly": true,
+          "sourceUrl": "https://bee-dash.com/blog-entry-19043.html"
+        },
+        {
+          "siteSlug": "hapitas",
+          "value": 15000,
+          "guaranteed": false,
+          "firstTimeOnly": true,
+          "sourceUrl": "https://hapitas.yurui-okozukai.com/smbccard-gold/"
+        },
+        {
+          "siteSlug": "powl",
+          "value": 10000,
+          "guaranteed": false,
+          "firstTimeOnly": true,
+          "sourceUrl": "https://yurui-okozukai.com/5611/smbccard/"
+        },
+        {
+          "siteSlug": "warau",
+          "value": 10000,
+          "guaranteed": false,
+          "firstTimeOnly": true,
+          "sourceUrl": "https://yurui-okozukai.com/5611/smbccard/"
+        },
+        {
+          "siteSlug": "coincome",
+          "value": 9000,
+          "guaranteed": false,
+          "firstTimeOnly": true,
+          "sourceUrl": "https://yurui-okozukai.com/5611/smbccard/"
+        },
+        {
+          "siteSlug": "moppy",
+          "value": 9000,
+          "guaranteed": false,
+          "firstTimeOnly": true,
+          "sourceUrl": "https://yurui-okozukai.com/5611/smbccard/"
+        },
+        {
+          "siteSlug": "amefri",
+          "value": 9000,
+          "guaranteed": false,
+          "firstTimeOnly": true,
+          "sourceUrl": "https://yurui-okozukai.com/5611/smbccard/"
+        },
+        {
+          "siteSlug": "ecnavi",
+          "value": 9000,
+          "guaranteed": false,
+          "firstTimeOnly": true,
+          "sourceUrl": "https://ecnavi.jp/ad/59774/show/"
+        },
+        {
+          "siteSlug": "pointtown",
+          "value": 9000,
+          "guaranteed": false,
+          "firstTimeOnly": true,
+          "sourceUrl": "https://yurui-okozukai.com/5611/smbccard/"
+        }
+      ],
+      "history": [],
+      "aiResearched": true,
+      "aiNote": "主な情報源はポイ活比較ブログ「yurui-okozukai.com」（2026年7月5日更新）、bee-dash.comブログ（2026年7月23日更新）、およびECナビの公開案件ページ。ポイントインカムとハピタスは7月中旬〜下旬時点で値上がりが確認されており、ちょびリッチ・ポイントインカムが最高還元。コインカムはNL通常版の個別データが未確認のため、比較サイト掲載の近似値（9,000円）を採用。還元額は頻繁に変動するため、申込前に各サイトを直接ご確認ください。",
+      "lastChecked": "2026-07-29T05:33:48.019Z"
+    }
+  ]
+}

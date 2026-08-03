@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ポイ得ナビ | ポイントサイト横断比較（デモ）</title>
+<style>
+  :root{
+    --bg1:#141024; --bg2:#0a0814;
+    --paper:#ffffff; --ink:#1a1d29;
+    --sky:#38bdf8; --sky-d:#0ea5e9;
+    --amber:#fbbf24; --amber-d:#f59e0b;
+    --danger:#f87171; --ok:#34d399;
+    --line-d: rgba(255,255,255,0.10); --line-l: rgba(0,0,0,0.08);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family: -apple-system, "Segoe UI", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+    min-height:100vh;
+    transition: background .2s ease;
+  }
+  body.dark{ background: linear-gradient(180deg, var(--bg1), var(--bg2) 60%, #06050d); color:#fff; }
+  body.light{ background: linear-gradient(180deg,#f8fafc,#ffffff); color:#1a1d29; }
+
+  .num{ font-variant-numeric: tabular-nums; font-weight:700; letter-spacing:.2px; }
+
+  header.topbar{
+    position: sticky; top:0; z-index:10;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 16px; backdrop-filter: blur(16px);
+    border-bottom:1px solid var(--line-d);
+  }
+  body.light header.topbar{ border-bottom:1px solid var(--line-l); background:rgba(255,255,255,0.7); }
+  body.dark header.topbar{ background:rgba(15,12,30,0.7); }
+  .brand{ display:flex; align-items:center; gap:8px; font-weight:700; font-size:14px; }
+  .brand .logo{ width:24px;height:24px;border-radius:8px;background:var(--sky-d);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px; }
+  .theme-btn{ width:32px;height:32px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center; }
+  body.dark .theme-btn{ background:rgba(255,255,255,0.1); color:#fff; }
+  body.light .theme-btn{ background:rgba(0,0,0,0.05); color:#1a1d29; }
+
+  main{ max-width:720px; margin:0 auto; padding-bottom:64px; }
+  .view{ animation: fadeUp .35s ease both; }
+  @keyframes fadeUp{ from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);} }
+  @keyframes shimmer{ 0%{background-position:-200px 0;} 100%{background-position:200px 0;} }
+
+  section{ padding: 0 16px; margin-bottom:40px; }
+  .hero{ text-align:center; padding-top:44px; padding-bottom:24px; }
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:6px; font-size:12px;
+    padding:5px 12px; border-radius:999px; margin-bottom:10px;
+  }
+  body.dark .eyebrow{ background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.7); }
+  body.light .eyebrow{ background:rgba(0,0,0,0.05); color:rgba(0,0,0,0.6); }
+  .microlabel{ font-size:11px; letter-spacing:.25em; font-weight:700; color:var(--sky); margin-bottom:8px; }
+  h1{ font-size:30px; font-weight:800; margin:0 0 12px; line-height:1.3; }
+  .hero p.sub{ font-size:14px; opacity:.6; margin:0 0 28px; }
+
+  .searchbox{
+    max-width:520px; margin:0 auto; display:flex; gap:8px;
+    padding:8px; border-radius:16px; border:1px solid;
+  }
+  body.dark .searchbox{ background:rgba(255,255,255,0.06); border-color:rgba(255,255,255,0.15); }
+  body.light .searchbox{ background:#fff; border-color:rgba(0,0,0,0.08); box-shadow:0 8px 20px rgba(0,0,0,0.06); }
+  .searchbox input{
+    flex:1; border:none; outline:none; background:transparent; font-size:14px; padding:10px 8px; color:inherit;
+  }
+  .searchbox button{
+    background:var(--sky-d); color:#fff; border:none; border-radius:12px; padding:0 20px;
+    font-weight:700; font-size:14px; cursor:pointer; transition:transform .1s ease;
+  }
+  .searchbox button:active{ transform:scale(.95); }
+
+  .quicktags{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-top:14px; }
+  .qtag{
+    font-size:12px; padding:6px 12px; border-radius:999px; border:1px solid; cursor:pointer; background:transparent; color:inherit;
+  }
+  body.dark .qtag{ border-color:rgba(255,255,255,0.15); }
+  body.light .qtag{ border-color:rgba(0,0,0,0.1); }
+
+  .card{
+    border-radius:16px; border:1px solid; backdrop-filter:blur(16px);
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .card:hover{ transform:translateY(-2px); }
+  body.dark .card{ background:rgba(255,255,255,0.05); border-color:rgba(255,255,255,0.10); }
+  body.light .card{ background:rgba(255,255,255,0.75); border-color:rgba(0,0,0,0.06); box-shadow:0 2px 8px rgba(0,0,0,0.04); }
+  body.light .card:hover{ box-shadow:0 8px 20px rgba(0,0,0,0.08); }
+
+  .ai-card{ max-width:520px; margin:20px auto 0; padding:14px; display:flex; gap:12px; text-align:left; }
+  .ai-icon{ width:34px;height:34px;border-radius:50%; background:linear-gradient(135deg,#22d3ee,var(--sky-d)); flex-shrink:0; display:flex;align-items:center;justify-content:center; color:#fff; font-size:15px; }
+
+  h2.h2{ font-size:14px; font-weight:700; display:flex; align-items:center; gap:8px; margin-bottom:12px; }
+
+  .cattabs{ display:flex; gap:8px; overflow-x:auto; padding-bottom:6px; margin-bottom:12px; }
+  .cattabs::-webkit-scrollbar{ display:none; }
+  .cattab{
+    flex-shrink:0; display:flex; align-items:center; gap:6px; font-size:12px; padding:8px 14px;
+    border-radius:999px; border:1px solid; cursor:pointer; background:transparent; color:inherit; white-space:nowrap;
+  }
+  body.dark .cattab{ border-color:rgba(255,255,255,0.15); }
+  body.light .cattab{ border-color:rgba(0,0,0,0.1); }
+  .cattab.active{ background:var(--sky-d); border-color:var(--sky-d); color:#fff; }
+
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  @media(max-width:520px){ .grid2{ grid-template-columns:1fr; } }
+  .grid3{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+  @media(max-width:520px){ .grid3{ grid-template-columns:repeat(2,1fr); } }
+
+  .rank-item{ padding:14px; display:flex; align-items:center; gap:12px; cursor:pointer; }
+  .rank-badge{
+    width:26px;height:26px;border-radius:50%; display:flex;align-items:center;justify-content:center;
+    font-size:11px; font-weight:800; flex-shrink:0;
+  }
+  body.dark .rank-badge{ background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.6); }
+  body.light .rank-badge{ background:rgba(0,0,0,0.05); color:rgba(0,0,0,0.5); }
+  .rank-badge.gold{ background:var(--amber); color:#3a2a05; }
+  .rank-name{ flex:1; min-width:0; font-size:14px; font-weight:600; }
+  .rank-sub{ font-size:11px; opacity:.5; font-weight:400; }
+  .rank-amount{ font-size:14px; color:var(--sky); flex-shrink:0; }
+
+  .trend-card{ padding:14px; cursor:pointer; }
+  .trend-top{ display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .badge{ font-size:11px; padding:3px 10px; border-radius:999px; font-weight:600; }
+  .badge.up{ background:rgba(52,211,153,0.15); color:var(--ok); }
+  .badge.down{ background:rgba(248,113,113,0.15); color:var(--danger); }
+  .trend-bottom{ display:flex; justify-content:space-between; align-items:flex-end; }
+  .trend-amount{ font-size:18px; }
+  .trend-note{ font-size:11px; opacity:.4; }
+
+  .site-card{ padding:14px; cursor:pointer; }
+  .site-top{ display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+  .dot{ width:10px;height:10px;border-radius:50%; }
+  .site-name{ font-size:12px; font-weight:700; }
+  .site-sub{ font-size:11px; opacity:.4; }
+
+  .backbtn{ display:flex; align-items:center; gap:4px; font-size:12px; opacity:.6; background:none; border:none; cursor:pointer; padding:0; margin-bottom:16px; color:inherit; }
+
+  .filters{ display:flex; gap:8px; overflow-x:auto; margin-bottom:16px; align-items:center; }
+  .filters::-webkit-scrollbar{ display:none; }
+  .filter-btn{
+    flex-shrink:0; font-size:12px; padding:7px 14px; border-radius:999px; border:1px solid; cursor:pointer; background:transparent; color:inherit; white-space:nowrap;
+  }
+  body.dark .filter-btn{ border-color:rgba(255,255,255,0.15); }
+  body.light .filter-btn{ border-color:rgba(0,0,0,0.1); }
+  .filter-btn.active{ background:var(--sky-d); border-color:var(--sky-d); color:#fff; }
+
+  .offer-row{ display:flex; align-items:center; gap:12px; padding:14px 16px; border-bottom:1px solid; cursor:pointer; }
+  body.dark .offer-row{ border-color:rgba(255,255,255,0.06); }
+  body.light .offer-row{ border-color:rgba(0,0,0,0.05); }
+  .offer-row:last-child{ border-bottom:none; }
+  .offer-site{ flex:1; min-width:0; }
+  .offer-site .name{ font-size:14px; font-weight:600; }
+  .offer-tags{ display:flex; gap:6px; margin-top:5px; flex-wrap:wrap; }
+  .offer-amount{ text-align:right; flex-shrink:0; }
+  .offer-amount .val{ font-size:16px; }
+  .offer-amount .diff{ font-size:11px; color:var(--danger); }
+
+  .skel{ height:14px; border-radius:8px; background: linear-gradient(90deg, rgba(255,255,255,0.06) 25%, rgba(255,255,255,0.14) 37%, rgba(255,255,255,0.06) 63%); background-size:400px 100%; animation:shimmer 1.4s infinite linear; }
+
+  .chart-wrap{ position:relative; height:150px; margin-top:8px; }
+
+  .cta{
+    display:block; width:100%; text-align:center; padding:14px; border-radius:16px; border:none;
+    background:var(--sky-d); color:#fff; font-weight:700; font-size:14px; cursor:pointer; margin-top:16px;
+  }
+  .cta:active{ transform:scale(.98); }
+
+  table.cmp{ width:100%; border-collapse:collapse; font-size:14px; }
+  table.cmp th{ text-align:left; font-size:11px; opacity:.5; padding:12px 16px; font-weight:600; }
+  table.cmp th:last-child, table.cmp td:last-child{ text-align:right; }
+  table.cmp td{ padding:12px 16px; border-top:1px solid; }
+  body.dark table.cmp td{ border-color:rgba(255,255,255,0.06); }
+  body.light table.cmp td{ border-color:rgba(0,0,0,0.05); }
+
+  .icon{ display:inline-block; vertical-align:middle; }
+</style>
+</head>
+<body class="dark">
+<header class="topbar">
+  <div class="brand"><span class="logo">P</span> ポイ得ナビ</div>
+  <button class="theme-btn" id="themeBtn">🌙</button>
+</header>
+<main><div id="app" class="view"></div></main>
+
+<script>
+/* ============================================================
+   完全オフライン動作版（外部CDN・外部ライブラリ一切不使用）
+   ============================================================ */
+
+const OFFERS = {
+  "楽天カード": [
+    { site: "ハピタス", value: 10700, guaranteed: false },
+    { site: "モッピー", value: 10700, guaranteed: false },
+    { site: "ちょびリッチ", value: 4700, guaranteed: false },
+    { site: "Powl", value: 4700, guaranteed: false },
+    { site: "ポイントインカム", value: 4000, guaranteed: true },
+    { site: "コインカム", value: 4000, guaranteed: false },
+    { site: "ワラウ", value: 4000, guaranteed: false },
+    { site: "ECナビ", value: 4000, guaranteed: false },
+    { site: "アメフリ", value: 4000, guaranteed: false },
+    { site: "ポイントタウン", value: 476, guaranteed: false },
+  ]
+};
+const HISTORY = { "楽天カード": [["1月",9000],["3月",9000],["5月",9500],["7/1",9500],["7/10",10000],["7/25",10700]] };
+const DATA_NOTE = "2026年7月25日時点のスナップショット（出典：ポイ活比較ブログ「チリツモ！」掲載値／手動反映）";
+
+const FALLBACK_SITES = [
+  { slug:"hapitas", name:"ハピタス", color:"#f97316" }, { slug:"moppy", name:"モッピー", color:"#ec4899" },
+  { slug:"chobirich", name:"ちょびリッチ", color:"#10b981" }, { slug:"powl", name:"Powl", color:"#14b8a6" },
+  { slug:"pointincome", name:"ポイントインカム", color:"#8b5cf6" }, { slug:"coincome", name:"コインカム", color:"#fb923c" },
+  { slug:"warau", name:"ワラウ", color:"#eab308" }, { slug:"ecnavi", name:"ECナビ", color:"#f59e0b" },
+  { slug:"amefri", name:"アメフリ", color:"#22c55e" }, { slug:"pointtown", name:"ポイントタウン", color:"#0072bc" },
+];
+const CATEGORIES = [
+  { id:"card", label:"クレジットカード" }, { id:"sec", label:"証券" },
+  { id:"fx", label:"FX" }, { id:"app", label:"アプリ" },
+  { id:"ec", label:"EC" }, { id:"travel", label:"旅行" },
+];
+const POPULAR = {
+  card: [{ name:"楽天カード", best:10700, site:"ハピタス" }, { name:"三井住友カード(NL)", best:9000, site:"ハピタス" }],
+  sec: [{ name:"SBI証券 口座開設", best:7000, site:"ハピタス" }],
+  fx: [{ name:"GMOクリック証券 FX", best:15000, site:"ポイントインカム" }],
+  app: [{ name:"PayPay証券アプリ", best:2000, site:"モッピー" }],
+  ec: [{ name:"楽天市場（購入額の1%）", best:1.0, site:"モッピー", rate:true }],
+  travel: [{ name:"じゃらん", best:2.0, site:"ちょびリッチ", rate:true }],
+};
+const TRENDING = [
+  { name:"楽天カード", cur:10700, y:10000, w:9500, site:"ハピタス/モッピー" },
+  { name:"U-NEXT 新規登録", cur:1600, y:1600, w:1300, site:"ポイントタウン" },
+];
+
+// ------------------------------------------------------------------
+// API接続レイヤー（同一オリジンのNext.jsサーバーを想定。失敗時はローカルデータにフォールバック）
+// ------------------------------------------------------------------
+async function apiSearch(keyword){
+  const res = await fetch("/api/search?q=" + encodeURIComponent(keyword));
+  if(!res.ok) throw new Error("search failed");
+  return res.json();
+}
+async function apiHistory(id){
+  const res = await fetch("/api/campaigns/" + id + "/history");
+  if(!res.ok) throw new Error("history failed");
+  return res.json();
+}
+async function apiSites(){
+  const res = await fetch("/api/sites");
+  if(!res.ok) throw new Error("sites failed");
+  return res.json();
+}
+async function apiSiteDetail(slug){
+  const res = await fetch("/api/sites/" + slug);
+  if(!res.ok) throw new Error("site detail failed");
+  return res.json();
+}
+
+let state = {
+  dark:true, view:"home", keyword:"楽天カード", cat:"card", sort:"point", loading:false,
+  apiConnected: null,     // null=未確認 / true / false
+  campaign: null,         // APIから取得した現在の案件（{id, offers, ...}）
+  history: null,          // APIから取得した還元履歴
+  sites: FALLBACK_SITES,  // APIから取得したサイト一覧（失敗時はフォールバック）
+  siteName: "",
+  siteCampaigns: null,
+};
+
+function yen(n, rate){ return rate ? n + "%" : n.toLocaleString("ja-JP") + "円"; }
+function esc(s){ return String(s); }
+
+function icon(name, size){
+  size = size || 16;
+  const s = {
+    search:'<circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
+    back:'<line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>',
+    chevron:'<polyline points="9 18 15 12 9 6"/>',
+    up:'<line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>',
+    down:'<line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/>',
+    flame:'<path d="M12 2c1 4-4 5-4 9a4 4 0 0 0 8 0c0-2-1-3-1-3s2 1 2 4a6 6 0 0 1-12 0c0-5 5-6 5-10z"/>',
+    shield:'<path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4z"/><polyline points="9 12 11 14 15 10"/>',
+    ext:'<path d="M14 3h7v7"/><line x1="10" y1="14" x2="21" y2="3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>'
+  }[name] || "";
+  return '<svg class="icon" width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+s+'</svg>';
+}
+
+function lineChartSVG(points){
+  const w = 300, h = 130, pad = 20;
+  const vals = points.map(p => p[1]);
+  const min = Math.min(...vals), max = Math.max(...vals);
+  const range = (max - min) || 1;
+  const stepX = (w - pad*2) / (points.length - 1);
+  const coords = points.map((p,i) => {
+    const x = pad + i*stepX;
+    const y = h - pad - ((p[1]-min)/range)*(h-pad*2);
+    return [x,y];
+  });
+  const path = coords.map((c,i) => (i===0?"M":"L") + c[0].toFixed(1) + " " + c[1].toFixed(1)).join(" ");
+  const dots = coords.map(c => '<circle cx="'+c[0].toFixed(1)+'" cy="'+c[1].toFixed(1)+'" r="3" fill="#f59e0b"/>').join("");
+  const labels = points.map((p,i) => '<text x="'+coords[i][0].toFixed(1)+'" y="'+(h-2)+'" font-size="9" fill="currentColor" opacity="0.4" text-anchor="middle">'+p[0]+'</text>').join("");
+  return '<svg viewBox="0 0 '+w+' '+h+'" width="100%" height="100%" preserveAspectRatio="none">' +
+    '<path d="'+path+'" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+    dots + labels + '</svg>';
+}
+
+function render(){
+  document.body.className = state.dark ? "dark" : "light";
+  document.getElementById("themeBtn").textContent = state.dark ? "☀️" : "🌙";
+  const app = document.getElementById("app");
+  app.className = "view";
+  if(state.view === "home") app.innerHTML = renderHome();
+  else if(state.view === "search") app.innerHTML = renderSearch();
+  else if(state.view === "detail") app.innerHTML = renderDetail();
+  else if(state.view === "compare") app.innerHTML = renderCompare();
+  else if(state.view === "site") app.innerHTML = renderSite();
+  bindEvents();
+}
+
+function renderHome(){
+  const list = POPULAR[state.cat];
+  const catTabs = CATEGORIES.map(c =>
+    '<button class="cattab '+(c.id===state.cat?"active":"")+'" data-act="setcat" data-val="'+c.id+'">'+c.label+'</button>'
+  ).join("");
+  const popRows = list.map((it,i) =>
+    '<div class="card rank-item" data-act="goDetail" data-val="'+esc(it.name)+'">' +
+      '<div class="rank-badge '+(i===0?"gold":"")+'">'+(i+1)+'</div>' +
+      '<div class="rank-name">'+it.name+'<div class="rank-sub">'+it.site+'経由</div></div>' +
+      '<div class="rank-amount num">'+yen(it.best, it.rate)+'</div>' +
+    '</div>'
+  ).join("");
+  const trendCards = TRENDING.map(t => {
+    const diffDay = t.cur - t.y, diffWeek = t.cur - t.w, up = diffDay > 0;
+    return '<div class="card trend-card" data-act="goDetail" data-val="'+esc(t.name)+'">' +
+      '<div class="trend-top"><span style="font-size:14px;font-weight:600;">'+t.name+'</span>' +
+      (diffDay!==0 ? '<span class="badge '+(up?"up":"down")+'">'+icon(up?"up":"down",11)+' 昨日比 '+(up?"+":"")+diffDay.toLocaleString()+'円</span>' : '') +
+      '</div><div class="trend-bottom"><span class="trend-amount num">'+yen(t.cur)+'</span>' +
+      '<span class="trend-note">7日比 '+(diffWeek>=0?"+":"")+diffWeek.toLocaleString()+'円・'+t.site+'</span></div></div>';
+  }).join("");
+  const siteCards = state.sites.map((s,i) =>
+    '<div class="card site-card" data-act="goSite" data-val="'+esc(s.name)+'">' +
+      '<div class="site-top"><span class="dot" style="background:'+s.color+'"></span><span class="site-name">'+(i+1)+'. '+s.name+'</span></div>' +
+      '<div class="site-sub">'+DATA_NOTE.split("（")[0]+'</div>' +
+    '</div>'
+  ).join("");
+
+  return '' +
+  '<section class="hero">' +
+    '<div class="eyebrow">✨ 実データスナップショット反映中</div>' +
+    '<div class="microlabel">POINT COMPARE ENGINE</div>' +
+    '<h1>ポイントサイト横断検索</h1>' +
+    '<p class="sub">どのサイト経由が一番お得か、実データで比較。</p>' +
+    '<div class="searchbox">' + icon("search",18) +
+      '<input id="searchInput" placeholder="例）楽天カード" value="'+esc(state.keyword)+'">' +
+      '<button data-act="search">検索</button>' +
+    '</div>' +
+    '<div class="quicktags">' +
+      ["楽天カード","SBI証券","U-NEXT","じゃらん"].map(k => '<button class="qtag" data-act="quicksearch" data-val="'+k+'">'+k+'</button>').join("") +
+    '</div>' +
+    '<div class="card ai-card"><div class="ai-icon">✨</div>' +
+      '<div><div style="font-size:13px;font-weight:700;">AIおすすめ案件</div>' +
+      '<div style="font-size:12px;opacity:.6;margin-top:2px;">「クレカ案件で一番稼げるものは？」→ 今なら<b style="color:var(--sky);">楽天カード（ハピタス/モッピー経由・10,700円）</b>がおすすめです。</div></div>' +
+    '</div>' +
+  '</section>' +
+  '<section><h2 class="h2">🏅 人気ランキング</h2><div class="cattabs">'+catTabs+'</div>' +
+    '<div class="grid2">'+popRows+'</div></section>' +
+  '<section><h2 class="h2">🔥 急上昇案件</h2><div class="grid2">'+trendCards+'</div></section>' +
+  '<section><h2 class="h2">👛 ポイントサイトランキング</h2><div class="grid3">'+siteCards+'</div></section>';
+}
+
+function currentOffers(){
+  if(state.campaign && state.campaign.offers && state.campaign.offers.length){
+    return state.campaign.offers.slice().sort((a,b)=>b.value-a.value);
+  }
+  return (OFFERS[state.keyword] || OFFERS["楽天カード"]).slice().sort((a,b)=>b.value-a.value);
+}
+function currentHistory(){
+  if(state.history && state.history.length){
+    return state.history.map(h => [h.date, h.value]);
+  }
+  return HISTORY[state.keyword] || HISTORY["楽天カード"];
+}
+function currentNote(){
+  return state.dataNote || DATA_NOTE;
+}
+function connectionBadge(){
+  if(state.apiConnected === true) return '<span class="badge up">🟢 API接続中（localhost:3000）</span>';
+  if(state.apiConnected === false) return '<span class="badge down">⚪ APIに未接続・ローカルデータ表示中</span>';
+  return '';
+}
+
+function renderSearch(){
+  const offers = currentOffers();
+  const best = offers[0].value;
+  const rows = state.loading
+    ? Array.from({length:5}).map(()=> '<div class="offer-row"><div class="skel" style="width:26px;height:26px;border-radius:50%;"></div><div class="skel" style="flex:1;"></div><div class="skel" style="width:60px;"></div></div>').join("")
+    : offers.map((o,i) => {
+        const rankCls = i===0 ? "gold" : "";
+        return '<div class="offer-row" data-act="goDetail" data-val="'+esc(state.keyword)+'">' +
+          '<div class="rank-badge '+rankCls+'">'+(i+1)+'</div>' +
+          '<div class="offer-site"><div class="name">'+o.site+'</div>' +
+          '<div class="offer-tags">' + (o.guaranteed ? '<span class="badge up">'+icon("shield",10)+' 保証</span>' : '') + '<span class="badge" style="opacity:.6;">初回限定</span></div></div>' +
+          '<div class="offer-amount"><div class="val num" style="color:'+(i===0?"var(--amber)":"inherit")+'">'+yen(o.value)+'</div>' +
+          (i>0 ? '<div class="diff">最高比 -'+(best-o.value).toLocaleString()+'円</div>' : '') + '</div>' +
+        '</div>';
+      }).join("");
+
+  return '' +
+  '<section style="padding-top:20px;">' +
+    '<button class="backbtn" data-act="goHome">'+icon("back",14)+' トップに戻る</button>' +
+    '<h1 style="font-size:20px;margin-bottom:2px;">'+state.keyword+'</h1>' +
+    '<div style="font-size:12px;opacity:.4;margin-bottom:4px;">クレジットカード発行・'+offers.length+'サイトで比較 '+connectionBadge()+'</div>' +
+    '<div style="font-size:11px;opacity:.3;margin-bottom:16px;">'+currentNote()+'</div>' +
+    '<div class="filters">' +
+      '<button class="filter-btn active">ポイント順</button>' +
+      '<button class="filter-btn">更新日順</button>' +
+      '<button class="filter-btn">初回限定</button>' +
+      '<button class="filter-btn">ポイント保証</button>' +
+    '</div>' +
+    '<div class="card" style="overflow:hidden;">'+rows+'</div>' +
+    (!state.loading ? '<div class="card" style="margin-top:16px;padding:14px;display:flex;justify-content:space-between;align-items:center;">' +
+      '<span style="font-size:12px;opacity:.5;">最高還元</span><span class="num" style="font-size:18px;color:var(--amber);">'+yen(best)+'</span></div>' : '') +
+  '</section>';
+}
+
+function renderDetail(){
+  const offers = currentOffers();
+  const history = currentHistory();
+  const best = offers[0].value;
+  const rows = offers.map((o,i) =>
+    '<div class="offer-row">' +
+      '<div class="rank-badge '+(i===0?"gold":"")+'" style="width:22px;height:22px;">'+(i+1)+'</div>' +
+      '<div class="offer-site" style="font-size:14px;">'+o.site+'</div>' +
+      '<div class="num" style="font-size:14px;color:'+(i===0?"var(--amber)":"inherit")+';">'+yen(o.value)+'</div>' +
+      '<button style="font-size:11px;background:var(--sky-d);color:#fff;border:none;padding:6px 10px;border-radius:8px;cursor:pointer;margin-left:8px;">サイトへ '+icon("ext",10)+'</button>' +
+    '</div>'
+  ).join("");
+
+  return '' +
+  '<section style="padding-top:20px;">' +
+    '<button class="backbtn" data-act="goSearch">'+icon("back",14)+' 検索結果に戻る</button>' +
+    '<div style="display:flex;justify-content:space-between;align-items:flex-start;">' +
+      '<h1 style="font-size:20px;margin:0 0 4px;">'+state.keyword+'</h1>' +
+      '<span class="badge" style="background:rgba(251,191,36,0.15);color:var(--amber);">🎁 クレジットカード</span>' +
+    '</div>' +
+    '<div style="font-size:12px;opacity:.4;margin-bottom:16px;">'+currentNote()+' '+connectionBadge()+'</div>' +
+    '<div class="card" style="padding:20px;margin-bottom:16px;">' +
+      '<div style="font-size:12px;opacity:.5;margin-bottom:4px;">現在最高</div>' +
+      '<div class="num" style="font-size:30px;color:var(--amber);margin-bottom:16px;">'+yen(best)+' <span style="font-size:13px;font-weight:400;opacity:.5;">/ '+offers[0].site+'</span></div>' +
+      '<div style="font-size:12px;font-weight:600;opacity:.6;margin-bottom:6px;">還元履歴</div>' +
+      '<div class="chart-wrap">'+lineChartSVG(history)+'</div>' +
+    '</div>' +
+    '<div class="card" style="overflow:hidden;margin-bottom:16px;">'+rows+'</div>' +
+    '<button class="cta" data-act="goCompare">全サイトを比較表で見る</button>' +
+  '</section>';
+}
+
+function renderCompare(){
+  const offers = currentOffers();
+  const best = offers[0].value;
+  const rows = offers.map((o,i) =>
+    '<tr><td style="font-weight:600;">'+o.site+'</td>' +
+    '<td class="num" style="color:'+(i===0?"var(--amber)":"inherit")+';font-weight:700;">'+yen(o.value)+'</td>' +
+    '<td style="color:var(--danger);font-size:12px;">'+(i===0?'—':'-'+(best-o.value).toLocaleString()+'円')+'</td></tr>'
+  ).join("");
+  return '' +
+  '<section style="padding-top:20px;">' +
+    '<button class="backbtn" data-act="goDetail" data-val="'+esc(state.keyword)+'">'+icon("back",14)+' 案件詳細に戻る</button>' +
+    '<h1 style="font-size:20px;margin-bottom:16px;">'+state.keyword+' 比較</h1>' +
+    '<div class="card" style="overflow:hidden;"><table class="cmp"><thead><tr><th>サイト</th><th>還元</th><th>最高との差</th></tr></thead><tbody>'+rows+'</tbody></table></div>' +
+  '</section>';
+}
+
+function renderSite(){
+  const list = state.siteCampaigns && state.siteCampaigns.length
+    ? state.siteCampaigns.map(c => ({ name: c.name, best: c.value, rate: c.rewardType === "rate" }))
+    : POPULAR.card;
+  const rows = list.map((it,i) =>
+    '<div class="card rank-item" data-act="goDetail" data-val="'+esc(it.name)+'">' +
+      '<span style="width:18px;opacity:.3;font-size:12px;">'+(i+1)+'</span>' +
+      '<div class="rank-name">'+it.name+'</div>' +
+      '<div class="rank-amount num">'+yen(it.best, it.rate)+'</div>' +
+    '</div>'
+  ).join("");
+  return '' +
+  '<section style="padding-top:20px;">' +
+    '<button class="backbtn" data-act="goHome">'+icon("back",14)+' トップに戻る</button>' +
+    '<div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">' +
+      '<div style="width:44px;height:44px;border-radius:16px;background:var(--sky-d);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;">'+state.siteName[0]+'</div>' +
+      '<div><h1 style="font-size:17px;margin:0;">'+state.siteName+'</h1></div>' +
+    '</div>' +
+    '<div style="font-size:11px;opacity:.4;margin-bottom:16px;">'+connectionBadge()+'</div>' +
+    '<div class="filters">' +
+      '<button class="filter-btn active">人気案件</button>' +
+      '<button class="filter-btn">本日の還元UP</button>' +
+      '<button class="filter-btn">ランキング</button>' +
+      '<button class="filter-btn">新着案件</button>' +
+    '</div>' +
+    '<div style="display:flex;flex-direction:column;gap:8px;">'+rows+'</div>' +
+  '</section>';
+}
+
+async function doSearch(keyword){
+  state.keyword = keyword; state.view = "search"; state.loading = true; render();
+  try{
+    const json = await apiSearch(keyword);
+    state.campaign = json.results && json.results[0] ? json.results[0] : null;
+    state.dataNote = json.dataNote || null;
+    state.apiConnected = true;
+    if(state.campaign){
+      try{
+        const h = await apiHistory(state.campaign.id);
+        state.history = h.history;
+      }catch(e){ state.history = null; }
+    }
+  }catch(e){
+    state.campaign = null; state.history = null; state.apiConnected = false;
+  }
+  state.loading = false; render();
+}
+
+async function doGoDetail(name){
+  state.view = "detail";
+  await doSearchQuiet(name);
+  state.view = "detail"; render();
+}
+async function doSearchQuiet(keyword){
+  state.keyword = keyword; render();
+  try{
+    const json = await apiSearch(keyword);
+    state.campaign = json.results && json.results[0] ? json.results[0] : null;
+    state.dataNote = json.dataNote || null;
+    state.apiConnected = true;
+    if(state.campaign){
+      try{ const h = await apiHistory(state.campaign.id); state.history = h.history; }
+      catch(e){ state.history = null; }
+    }
+  }catch(e){
+    state.campaign = null; state.history = null; state.apiConnected = false;
+  }
+}
+
+async function doGoSite(name){
+  state.siteName = name; state.view = "site"; state.siteCampaigns = null; render();
+  const match = state.sites.find(s => s.name === name);
+  if(!match || !match.slug){ state.apiConnected = false; render(); return; }
+  try{
+    const json = await apiSiteDetail(match.slug);
+    state.siteCampaigns = json.campaigns || [];
+    state.apiConnected = true;
+  }catch(e){
+    state.siteCampaigns = null; state.apiConnected = false;
+  }
+  render();
+}
+
+async function loadSitesFromApi(){
+  try{
+    const json = await apiSites();
+    if(json.sites && json.sites.length){
+      state.sites = json.sites.map(s => ({ slug: s.slug, name: s.name, color: s.colorHex }));
+      state.apiConnected = true;
+      render();
+    }
+  }catch(e){
+    // フォールバックのFALLBACK_SITESのまま表示を継続（無言で失敗を吸収）
+  }
+}
+
+function bindEvents(){
+  document.querySelectorAll("[data-act]").forEach(el => {
+    el.addEventListener("click", (e) => {
+      const act = el.dataset.act, val = el.dataset.val;
+      if(act === "search"){
+        const v = document.getElementById("searchInput").value.trim();
+        doSearch(v || "楽天カード");
+      } else if(act === "quicksearch"){
+        doSearch(val);
+      } else if(act === "setcat"){ state.cat = val; render(); }
+      else if(act === "goDetail"){ doGoDetail(val); }
+      else if(act === "goSearch"){ state.view = "search"; render(); }
+      else if(act === "goCompare"){ state.view = "compare"; render(); }
+      else if(act === "goHome"){ state.view = "home"; render(); }
+      else if(act === "goSite"){ doGoSite(val); }
+    });
+  });
+}
+
+document.getElementById("themeBtn").addEventListener("click", () => {
+  state.dark = !state.dark; render();
+});
+
+render();
+loadSitesFromApi();
+</script>
+</body>
+</html>

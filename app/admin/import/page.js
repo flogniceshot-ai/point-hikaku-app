@@ -56,7 +56,8 @@ function parseText(text, anchors) {
     .filter(Boolean);
 
   const percentRe = /^(?:購入金額の)?(\d+(?:\.\d+)?)\s*%$/;
-  const ptRe = /^([\d,]+)\s*pt$/i;
+  // "pt" (ちょびリッチ・ポイントインカム等) と "P" 単体 (モッピー等) の両方に対応
+  const ptRe = /^([\d,]+)\s*(?:pt|Ｐ|P)$/i;
   const yenRe = /^([\d,]+)\s*円$/;
 
   const conditionLikeRe = /^(条件[:：]|残り|ボーナス|開催期間|獲得条件|付与時期|通常ポイント|追加ボーナス|\+$)/;

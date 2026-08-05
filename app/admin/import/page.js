@@ -2,10 +2,54 @@
 
 import { useEffect, useState } from "react";
 
+// 貼り付けられたHTML(クリップボードのtext/html)から <a href> と、
+// そのリンク内のテキストの対応表を作る。
+// ページのコピー元URLがあれば、相対パスを絶対URLに解決する。
+function extractAnchors(html, pageUrl) {
+  if (!html) return [];
+  try {
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const anchors = Array.from(doc.querySelectorAll("a[href]"));
+    return anchors
+      .map((a) => {
+        const href = a.getAttribute("href");
+        if (!href || href.startsWith("javascript:") || href.startsWith("#")) return null;
+        let resolved = href;
+        if (!/^https?:\/\//i.test(href)) {
+          if (!pageUrl) return null;
+          try {
+            resolved = new URL(href, pageUrl).toString();
+          } catch {
+            return null;
+          }
+        }
+        return { text: (a.textContent || "").replace(/\s+/g, ""), href: resolved };
+      })
+      .filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
+// 案件のテキスト(名前+還元額)を含むリンクを探す
+function findLinkFor(anchors, name, valueLineRaw) {
+  const needle = (name + valueLineRaw).replace(/\s+/g, "");
+  let best = null;
+  for (const a of anchors) {
+    if (a.text.includes(valueLineRaw.replace(/\s+/g, "")) && a.text.includes(name.replace(/\s+/g, "").slice(0, 6))) {
+      return a.href;
+    }
+    if (!best && a.text.includes(valueLineRaw.replace(/\s+/g, ""))) {
+      best = a.href;
+    }
+  }
+  return best;
+}
+
 // ポイントサイトのページからコピーしたテキストを、
 // 「案件名」「条件」「還元額」の3行1セットっぽいパターンで拾い出す簡易パーサー。
 // 完璧である必要はなく、あとで人間が確認・修正する前提。
-function parseText(text) {
+function parseText(text, anchors) {
   const rawLines = text
     .split("\n")
     .map((l) => l.trim())
@@ -67,6 +111,7 @@ function parseText(text) {
       valueType,
       guaranteed: false,
       firstTimeOnly: /新規|初回/.test(name) || rawLines[i - 1]?.includes("新規"),
+      sourceUrl: anchors && anchors.length > 0 ? findLinkFor(anchors, name, line) : null,
     });
   }
 
@@ -79,6 +124,8 @@ export default function AdminImportPage() {
   const [sites, setSites] = useState([]);
   const [siteSlug, setSiteSlug] = useState("");
   const [rawText, setRawText] = useState("");
+  const [pastedHtml, setPastedHtml] = useState("");
+  const [pageUrl, setPageUrl] = useState("");
   const [rows, setRows] = useState([]);
   const [submitStatus, setSubmitStatus] = useState("idle"); // idle | submitting | done | error
   const [submitResult, setSubmitResult] = useState(null);
@@ -96,8 +143,14 @@ export default function AdminImportPage() {
       .catch(() => {});
   }, []);
 
+  function handlePaste(e) {
+    const html = e.clipboardData.getData("text/html");
+    if (html) setPastedHtml(html);
+  }
+
   function handleParse() {
-    setRows(parseText(rawText));
+    const anchors = extractAnchors(pastedHtml, pageUrl.trim());
+    setRows(parseText(rawText, anchors));
     setSubmitStatus("idle");
     setSubmitResult(null);
   }
@@ -119,6 +172,7 @@ export default function AdminImportPage() {
         valueType: r.valueType,
         guaranteed: r.guaranteed,
         firstTimeOnly: r.firstTimeOnly,
+        sourceUrl: r.sourceUrl || null,
       }));
 
     if (entries.length === 0) return;
@@ -189,6 +243,18 @@ export default function AdminImportPage() {
         </select>
 
         <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
+          コピー元のページURL（任意・入れるとリンクも取り込めます）
+        </label>
+        <input
+          type="text"
+          className="search-input"
+          style={{ width: "100%", marginBottom: 12 }}
+          value={pageUrl}
+          onChange={(e) => setPageUrl(e.target.value)}
+          placeholder="例: https://pc.moppy.jp/"
+        />
+
+        <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
           貼り付けエリア
         </label>
         <textarea
@@ -196,9 +262,13 @@ export default function AdminImportPage() {
           style={{ width: "100%", minHeight: 200, fontFamily: "inherit" }}
           value={rawText}
           onChange={(e) => setRawText(e.target.value)}
+          onPaste={handlePaste}
           placeholder="ここにポイントサイトのページからコピーしたテキストを貼り付け"
         />
-        <button className="search-button" style={{ marginTop: 12 }} onClick={handleParse}>
+        <p style={{ fontSize: 11, color: "#9ca3af", marginTop: 4 }}>
+          {pastedHtml ? "リンク情報を検出しました。" : "貼り付けるとリンク情報も自動で拾います。"}
+        </p>
+        <button className="search-button" style={{ marginTop: 8 }} onClick={handleParse}>
           解析する
         </button>
       </div>
@@ -263,6 +333,9 @@ export default function AdminImportPage() {
                   />{" "}
                   保証あり
                 </label>
+                <span style={{ fontSize: 11, color: r.sourceUrl ? "#10b981" : "#d1d5db" }}>
+                  {r.sourceUrl ? "🔗 リンクあり" : "リンクなし"}
+                </span>
                 <button type="button" onClick={() => removeRow(r.id)} style={{ fontSize: 12, color: "#b91c1c" }}>
                   削除
                 </button>

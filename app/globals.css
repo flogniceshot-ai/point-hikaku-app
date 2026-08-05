@@ -194,8 +194,26 @@ a {
   margin: 0;
 }
 
-.campaign-name a:hover {
+.campaign-name-link {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.campaign-name-link:hover {
+  color: var(--color-primary-dark);
+}
+
+.campaign-name-link:hover .campaign-name-arrow {
   text-decoration: underline;
+}
+
+.campaign-name-arrow {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-primary);
+  white-space: nowrap;
 }
 
 .badge {
@@ -281,6 +299,21 @@ a {
 .offer-source-link:hover {
   color: var(--color-primary-dark);
   border-color: var(--color-primary);
+}
+
+.offer-site-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 2px;
+  transition: text-decoration-color 0.15s ease, color 0.15s ease;
+}
+
+.offer-site-link:hover {
+  color: var(--color-primary-dark);
+  text-decoration-color: currentColor;
 }
 
 .offer-tags {

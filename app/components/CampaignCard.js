@@ -6,7 +6,12 @@ export default function CampaignCard({ campaign }) {
     <div className="card campaign-card">
       <div className="campaign-card-header">
         <h2 className="campaign-name">
-          <a href={`/campaigns/${campaign.id}`}>{campaign.canonicalName}</a>
+          <a href={`/campaigns/${campaign.id}`} className="campaign-name-link">
+            {campaign.canonicalName}
+            <span className="campaign-name-arrow" aria-hidden="true">
+              詳細を見る ›
+            </span>
+          </a>
         </h2>
         {campaign.aiResearched && <span className="badge badge-ai">AI調査</span>}
       </div>

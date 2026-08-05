@@ -164,6 +164,22 @@ export default function AdminImportPage() {
     setRows((prev) => prev.filter((r) => r.id !== id));
   }
 
+  function addRow() {
+    setRows((prev) => [
+      ...prev,
+      {
+        id: `manual-${Date.now()}-${Math.random()}`,
+        include: true,
+        name: "",
+        value: "",
+        valueType: "fixed",
+        guaranteed: false,
+        firstTimeOnly: false,
+        sourceUrl: null,
+      },
+    ]);
+  }
+
   async function handleSubmit() {
     const entries = rows
       .filter((r) => r.include && r.name.trim() && Number.isFinite(Number(r.value)))
@@ -269,15 +285,32 @@ export default function AdminImportPage() {
         <p style={{ fontSize: 11, color: "#9ca3af", marginTop: 4 }}>
           {pastedHtml ? "リンク情報を検出しました。" : "貼り付けるとリンク情報も自動で拾います。"}
         </p>
-        <button className="search-button" style={{ marginTop: 8 }} onClick={handleParse}>
-          解析する
-        </button>
+        <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+          <button className="search-button" onClick={handleParse}>
+            解析する
+          </button>
+          <button
+            type="button"
+            onClick={addRow}
+            style={{
+              padding: "14px 20px",
+              fontSize: 14,
+              fontWeight: 700,
+              border: "1px solid var(--color-border)",
+              borderRadius: "var(--radius)",
+              background: "#fff",
+              cursor: "pointer",
+            }}
+          >
+            手入力で1件追加
+          </button>
+        </div>
       </div>
 
       {rows.length > 0 && (
         <div className="card">
           <p style={{ fontSize: 13, color: "#6b7280", marginBottom: 12 }}>
-            {rows.length}件の候補を見つけました。内容を確認・修正してから登録してください。
+            {rows.length}件あります（自動解析で単位がないサイトは0件のことがあります。その場合は上の「手入力で1件追加」で個別に追加してください）。内容を確認・修正してから登録してください。
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {rows.map((r) => (

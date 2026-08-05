@@ -59,11 +59,13 @@ function parseText(text, anchors) {
   // "pt" (ちょびリッチ・ポイントインカム等) と "P" 単体 (モッピー等) の両方に対応
   const ptRe = /^([\d,]+)\s*(?:pt|Ｐ|P)$/i;
   const yenRe = /^([\d,]+)\s*円$/;
+  // ECナビなど、単位無しで「通常値 特別値」が並ぶだけの表記に対応
+  const bareDualRe = /^([\d,]+(?:\.\d+)?)\s+([\d,]+(?:\.\d+)?)$/;
 
   const conditionLikeRe = /^(条件[:：]|残り|ボーナス|開催期間|獲得条件|付与時期|通常ポイント|追加ボーナス|\+$)/;
 
   function isValueLine(line) {
-    return percentRe.test(line) || ptRe.test(line) || yenRe.test(line);
+    return percentRe.test(line) || ptRe.test(line) || yenRe.test(line) || bareDualRe.test(line);
   }
 
   const found = [];
@@ -84,6 +86,10 @@ function parseText(text, anchors) {
     } else if ((m = percentRe.exec(line))) {
       value = Number(m[1]);
       valueType = "percent";
+    } else if ((m = bareDualRe.exec(line))) {
+      // 2つ目(現在/特別値)の方を採用。100未満なら%、以上ならポイントとみなす
+      value = Number(m[2].replace(/,/g, ""));
+      valueType = value < 100 ? "percent" : "fixed";
     }
 
     if (value === null || !Number.isFinite(value) || value <= 0) continue;

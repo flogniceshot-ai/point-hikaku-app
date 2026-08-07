@@ -138,6 +138,11 @@ export default function AdminImportPage() {
   const [submitResult, setSubmitResult] = useState(null);
   const [submitError, setSubmitError] = useState("");
 
+  const [deleteKeyword, setDeleteKeyword] = useState("");
+  const [deleteResults, setDeleteResults] = useState(null);
+  const [deleteSearchStatus, setDeleteSearchStatus] = useState("idle");
+  const [deleteActionMsg, setDeleteActionMsg] = useState("");
+
   useEffect(() => {
     fetch("/api/sites")
       .then((res) => res.json())
@@ -164,6 +169,63 @@ export default function AdminImportPage() {
 
   function updateRow(id, patch) {
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
+  }
+
+  async function handleDeleteSearch() {
+    setDeleteSearchStatus("loading");
+    setDeleteActionMsg("");
+    try {
+      const res = await fetch(`/api/search?q=${encodeURIComponent(deleteKeyword.trim())}`);
+      const data = await res.json();
+      setDeleteResults(data.results || []);
+      setDeleteSearchStatus("done");
+    } catch (err) {
+      setDeleteSearchStatus("error");
+    }
+  }
+
+  async function handleDeleteCampaign(campaignId, name) {
+    if (!confirm(`「${name}」を案件ごと削除します。よろしいですか？`)) return;
+    try {
+      const res = await fetch("/api/admin/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ secret, campaignId }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setDeleteActionMsg(`削除失敗: ${data.error || ""}`);
+        return;
+      }
+      setDeleteResults((prev) => prev.filter((c) => c.id !== campaignId));
+      setDeleteActionMsg(`「${name}」を削除しました。`);
+    } catch (err) {
+      setDeleteActionMsg(`削除失敗: ${String(err.message || err)}`);
+    }
+  }
+
+  async function handleDeleteOffer(campaignId, siteSlug, campaignName, siteName) {
+    if (!confirm(`「${campaignName}」の${siteName}のオファーだけ削除します。よろしいですか？`)) return;
+    try {
+      const res = await fetch("/api/admin/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ secret, campaignId, siteSlug }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setDeleteActionMsg(`削除失敗: ${data.error || ""}`);
+        return;
+      }
+      setDeleteResults((prev) =>
+        prev.map((c) =>
+          c.id === campaignId ? { ...c, offers: c.offers.filter((o) => o.siteSlug !== siteSlug) } : c
+        )
+      );
+      setDeleteActionMsg(`「${campaignName}」の${siteName}のオファーを削除しました。`);
+    } catch (err) {
+      setDeleteActionMsg(`削除失敗: ${String(err.message || err)}`);
+    }
   }
 
   function removeRow(id) {
@@ -405,6 +467,74 @@ export default function AdminImportPage() {
           )}
         </div>
       )}
+
+      <div className="card" style={{ marginTop: 24 }}>
+        <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 8 }}>登録済み案件の削除</h2>
+        <p style={{ fontSize: 12, color: "#6b7280", marginBottom: 12 }}>
+          誤って登録してしまった案件や、特定サイトのオファーだけを検索して削除できます。空欄で検索すると全件出ます。
+        </p>
+        <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+          <input
+            type="text"
+            className="search-input"
+            style={{ flex: 1 }}
+            value={deleteKeyword}
+            onChange={(e) => setDeleteKeyword(e.target.value)}
+            placeholder="削除したい案件のキーワード（空欄で全件）"
+          />
+          <button className="search-button" onClick={handleDeleteSearch} disabled={deleteSearchStatus === "loading"}>
+            {deleteSearchStatus === "loading" ? "検索中…" : "検索"}
+          </button>
+        </div>
+
+        {deleteActionMsg && <p style={{ fontSize: 13, color: "#10b981", marginBottom: 12 }}>{deleteActionMsg}</p>}
+
+        {deleteResults && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {deleteResults.length === 0 && <p style={{ fontSize: 13, color: "#6b7280" }}>該当なし</p>}
+            {deleteResults.map((c) => (
+              <div key={c.id} style={{ border: "1px solid #e5e7eb", borderRadius: 8, padding: 10 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                  <strong style={{ fontSize: 13 }}>{c.canonicalName}</strong>
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteCampaign(c.id, c.canonicalName)}
+                    style={{ fontSize: 12, color: "#b91c1c" }}
+                  >
+                    案件ごと削除
+                  </button>
+                </div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                  {c.offers.map((o) => (
+                    <span
+                      key={o.siteSlug}
+                      style={{
+                        fontSize: 11,
+                        border: "1px solid #e5e7eb",
+                        borderRadius: 999,
+                        padding: "3px 8px",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 6,
+                      }}
+                    >
+                      {o.site}: {o.value}
+                      {o.value < 100 ? "%" : "P"}
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteOffer(c.id, o.siteSlug, c.canonicalName, o.site)}
+                        style={{ fontSize: 11, color: "#b91c1c" }}
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -50,22 +50,58 @@ function findLinkFor(anchors, name, valueLineRaw) {
 // 「案件名」「条件」「還元額」の3行1セットっぽいパターンで拾い出す簡易パーサー。
 // 完璧である必要はなく、あとで人間が確認・修正する前提。
 function parseText(text, anchors) {
-  const rawLines = text
+  const rawLinesInitial = text
     .split("\n")
     .map((l) => l.trim())
     .filter(Boolean);
 
-  const percentRe = /^(?:購入金額の)?(\d+(?:\.\d+)?)\s*%$/;
+  // アメフリ等、還元額の手前に「認証済」「購入金額の」のようなラベルが単独行で挟まるサイトに対応。
+  // 単独行なら行ごと除去、行の先頭に付いているだけなら先頭だけ取り除く。
+  const labelStrippedLines = rawLinesInitial
+    .filter((l) => !/^(認証済|購入金額の)$/.test(l))
+    .map((l) => l.replace(/^認証済\s*/, ""));
+
+  // 「40,000」「pt」のように数値と単位が別行に分かれているケースをまとめて1行にする
+  const bareNumRe = /^[\d,]+(?:\.\d+)?$/;
+  const unitOnlyRe = /^(pt|Ｐ|P|％|%|円)$/i;
+  const rawLines = [];
+  for (let i = 0; i < labelStrippedLines.length; i++) {
+    const line = labelStrippedLines[i];
+    const next = labelStrippedLines[i + 1];
+    if (bareNumRe.test(line) && next && unitOnlyRe.test(next)) {
+      rawLines.push(line + next);
+      i++; // 単位だけの行は消費済みなのでスキップ
+      continue;
+    }
+    rawLines.push(line);
+  }
+
+  // "％"(全角)にも対応
+  const percentRe = /^(?:購入金額の)?(\d+(?:\.\d+)?)\s*[%％]$/;
   // "pt" (ちょびリッチ・ポイントインカム等) と "P" 単体 (モッピー等) の両方に対応
   const ptRe = /^([\d,]+)\s*(?:pt|Ｐ|P)$/i;
   const yenRe = /^([\d,]+)\s*円$/;
   // ECナビなど、単位無しで「通常値 特別値」が並ぶだけの表記に対応
   const bareDualRe = /^([\d,]+(?:\.\d+)?)\s+([\d,]+(?:\.\d+)?)$/;
 
-  const conditionLikeRe = /^(条件[:：]|残り|ボーナス|開催期間|獲得条件|付与時期|通常ポイント|追加ボーナス|\+$)/;
+  // アメフリの「チャレンジボーナス」「＋20,000pt」のような追加ボーナス表記は
+  // 別案件として拾わない・名前候補にもしない
+  const conditionLikeRe = /^(条件[:：]|残り|ボーナス|チャレンジ|開催期間|獲得条件|付与時期|通常ポイント|追加ボーナス|＋|\+$)/;
 
   function isValueLine(line) {
     return percentRe.test(line) || ptRe.test(line) || yenRe.test(line) || bareDualRe.test(line);
+  }
+
+  // アメフリのように「案件名 / 達成条件 / 還元額」の3行セットになっているサイトでは、
+  // 還元額の直前の行は「登録+投資」「新規申込」のような達成条件であって案件名ではない。
+  // それっぽい行(記号+・条件動詞で終わる)は名前候補から後回しにする。
+  function looksLikeConditionPhrase(s) {
+    // 括弧や英字を含む行は「（初回入金＋新規取引）」のように条件を含んだ案件名そのものの
+    // 可能性が高いので、+/＋ だけでは条件行と判定しない
+    const hasBracketOrLatin = /[【】()（）/／]|[A-Za-z]{2,}/.test(s);
+    if (!hasBracketOrLatin && /[+＋]/.test(s)) return true;
+    if (/(完了|発行|申込|開設|取引|契約|購入|来店|予約|登録|成果|加入|入会|通過|達成|成立|申請)$/.test(s)) return true;
+    return false;
   }
 
   const found = [];
@@ -94,16 +130,21 @@ function parseText(text, anchors) {
 
     if (value === null || !Number.isFinite(value) || value <= 0) continue;
 
-    // 直前の行をさかのぼって、名前っぽい行を探す
+    // 直前の行をさかのぼって、名前っぽい行を探す。
+    // 達成条件っぽい行(looksLikeConditionPhrase)は一旦保留し、より名前らしい行があればそちらを優先する。
     let name = null;
+    let fallbackName = null;
     for (let back = 1; back <= 4 && i - back >= 0; back++) {
       const cand = rawLines[i - back];
       if (isValueLine(cand)) continue;
       if (conditionLikeRe.test(cand)) continue;
       if (cand.length < 2 || cand.length > 80) continue;
+      if (!fallbackName) fallbackName = cand;
+      if (looksLikeConditionPhrase(cand)) continue;
       name = cand;
       break;
     }
+    if (!name) name = fallbackName;
     if (!name) continue;
 
     const key = `${name}__${value}__${valueType}`;

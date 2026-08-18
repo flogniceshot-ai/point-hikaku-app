@@ -160,6 +160,23 @@ function parseText(text, anchors) {
     if (!name) name = fallbackName;
     if (!name) continue;
 
+    // ECナビ等、1件が [案件名リンク][条件文リンク][還元額リンク] という
+    // 同じhrefを持つ3つのリンクで構成されるサイトでは、テキストだけの逆算だと
+    // 2番目の条件文リンク(例:「総合口座開設(無料)」)を案件名と誤認識しやすい。
+    // (「NISA始めるなら【楽天証券】無料口座開設」のような本当の案件名は、
+    //  条件文と単純な部分文字列関係にないため文字列ヒューリスティックでは補正できない)
+    // pastedHtmlからリンク情報が取れている場合は、還元額と同じhrefを持つ
+    // アンカー群の「最初のリンクのテキスト」を、より確実な案件名として優先する。
+    if (anchors && anchors.length > 0) {
+      const valueAnchor = anchors.find((a) => a.text.includes(line.replace(/\s+/g, "")));
+      if (valueAnchor) {
+        const group = anchors.filter((a) => a.href === valueAnchor.href);
+        if (group.length >= 2 && group[0].text && group[0].text.length >= 2 && group[0].text.length <= 80) {
+          name = group[0].text;
+        }
+      }
+    }
+
     const key = `${name}__${value}__${valueType}`;
     if (seen.has(key)) continue;
     seen.add(key);

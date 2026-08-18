@@ -84,12 +84,14 @@ function parseText(text, anchors) {
   // ECナビなど、単位無しで「通常値 特別値」が並ぶだけの表記に対応
   const bareDualRe = /^([\d,]+(?:\.\d+)?)\s+([\d,]+(?:\.\d+)?)$/;
 
-  // アメフリの「チャレンジボーナス」「＋20,000pt」のような追加ボーナス表記は
+  // アメフリの「チャレンジボーナス」「＋20,000pt」のような追加ボーナス表記や、
+  // カウントダウンタイマー・口コミ欄のニックネームは、
   // 別案件として拾わない・名前候補にもしない
-  const conditionLikeRe = /^(条件[:：]|残り|ボーナス|チャレンジ|開催期間|獲得条件|付与時期|通常ポイント|追加ボーナス|＋|\+$)/;
+  const timerLikeRe = /^\d+(?:日)?\d+時間\d+分\d+秒$/;
+  const conditionLikeRe = /^(条件[:：]|残り|ボーナス|チャレンジ|開催期間|獲得条件|付与時期|通常ポイント|追加ボーナス|ニックネーム|＋|\+$)/;
 
   function isValueLine(line) {
-    return percentRe.test(line) || ptRe.test(line) || yenRe.test(line) || bareDualRe.test(line);
+    return percentRe.test(line) || ptRe.test(line) || yenRe.test(line) || bareDualRe.test(line) || timerLikeRe.test(line);
   }
 
   // アメフリのように「案件名 / 達成条件 / 還元額」の3行セットになっているサイトでは、
@@ -100,7 +102,8 @@ function parseText(text, anchors) {
     // 可能性が高いので、+/＋ だけでは条件行と判定しない
     const hasBracketOrLatin = /[【】()（）/／]|[A-Za-z]{2,}/.test(s);
     if (!hasBracketOrLatin && /[+＋]/.test(s)) return true;
-    if (/(完了|発行|申込|開設|取引|契約|購入|来店|予約|登録|成果|加入|入会|通過|達成|成立|申請)$/.test(s)) return true;
+    if (/(完了|発行|申込|開設|取引|契約|購入|来店|予約|登録|成果|加入|入会|通過|達成|成立|申請|利用|応募|参加|送信|視聴|閲覧|再生|来場|査定|相談|見積り?|ダウンロード|インストール|出資)$/.test(s))
+      return true;
     return false;
   }
 

@@ -88,7 +88,9 @@ function parseText(text, anchors) {
   // カウントダウンタイマー・口コミ欄のニックネームは、
   // 別案件として拾わない・名前候補にもしない
   const timerLikeRe = /^\d+(?:日)?\d+時間\d+分\d+秒$/;
-  const conditionLikeRe = /^(条件[:：]|残り|ボーナス|チャレンジ|開催期間|獲得条件|付与時期|通常ポイント|追加ボーナス|ニックネーム|＋|\+$)/;
+  // ちょびリッチ等の「商品レビュー：★4.66」のようなレビューカルーセルの星評価も、
+  // 実際の案件とは無関係のノイズなので名前候補から除外する
+  const conditionLikeRe = /^(条件[:：]|残り|ボーナス|チャレンジ|開催期間|獲得条件|付与時期|通常ポイント|追加ボーナス|ニックネーム|商品レビュー|★|＋|\+$)/;
 
   function isValueLine(line) {
     return percentRe.test(line) || ptRe.test(line) || yenRe.test(line) || bareDualRe.test(line) || timerLikeRe.test(line);
@@ -132,6 +134,14 @@ function parseText(text, anchors) {
     }
 
     if (value === null || !Number.isFinite(value) || value <= 0) continue;
+
+    // 還元額の直前行がレビュー欄の星評価やニックネームなどの場合、
+    // その案件自体が実在しない(レビューカルーセル等のノイズ)ので、
+    // 名前をさかのぼって探さずにこのエントリ自体を丸ごと無視する
+    const noiseImmediateRe = /^(商品レビュー|ニックネーム)/;
+    if (i - 1 >= 0 && (noiseImmediateRe.test(rawLines[i - 1]) || timerLikeRe.test(rawLines[i - 1]))) {
+      continue;
+    }
 
     // 直前の行をさかのぼって、名前っぽい行を探す。
     // 達成条件っぽい行(looksLikeConditionPhrase)は一旦保留し、より名前らしい行があればそちらを優先する。

@@ -45,11 +45,27 @@ export default function OfferRow({ offer, isTop }) {
             className="offer-fetched-at"
             style={{
               fontSize: 11,
-              color: fetched.stale ? "#b45309" : "#9ca3af",
+              color: fetched.stale ? "#ffb020" : "#6f8299",
               marginLeft: 6,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 4,
             }}
             title={new Date(offer.fetchedAt).toLocaleString("ja-JP")}
           >
+            {isTop && !fetched.stale && (
+              <span
+                aria-hidden="true"
+                style={{
+                  width: 5,
+                  height: 5,
+                  borderRadius: "50%",
+                  background: "#00f0ff",
+                  boxShadow: "0 0 5px #00f0ff",
+                  animation: "pulse 1.6s infinite",
+                }}
+              />
+            )}
             {fetched.label}
           </span>
         )}

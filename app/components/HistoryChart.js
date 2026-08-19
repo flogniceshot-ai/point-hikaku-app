@@ -35,38 +35,47 @@ export default function HistoryChart({ history }) {
   return (
     <div className="chart-wrap">
       <svg viewBox={`0 0 ${width} ${height}`} width="100%" role="img" aria-label="還元額の推移グラフ">
+        <defs>
+          <filter id="lineGlow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="3" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
         <line
           x1={padding.left}
           y1={padding.top}
           x2={padding.left}
           y2={height - padding.bottom}
-          stroke="#e5e7eb"
+          stroke="rgba(255,255,255,0.12)"
         />
         <line
           x1={padding.left}
           y1={height - padding.bottom}
           x2={width - padding.right}
           y2={height - padding.bottom}
-          stroke="#e5e7eb"
+          stroke="rgba(255,255,255,0.12)"
         />
-        <text x={4} y={padding.top + 4} fontSize="11" fill="#9ca3af">
+        <text x={4} y={padding.top + 4} fontSize="11" fill="#6f8299">
           {maxV.toLocaleString()}
         </text>
-        <text x={4} y={height - padding.bottom} fontSize="11" fill="#9ca3af">
+        <text x={4} y={height - padding.bottom} fontSize="11" fill="#6f8299">
           {minV.toLocaleString()}
         </text>
-        <path d={linePath} fill="none" stroke="#ff6f61" strokeWidth="2.5" />
+        <path d={linePath} fill="none" stroke="#00f0ff" strokeWidth="2.5" filter="url(#lineGlow)" />
         {points.map((p, i) => (
-          <circle key={i} cx={p.x} cy={p.y} r="3.5" fill="#ff6f61" />
+          <circle key={i} cx={p.x} cy={p.y} r="3.5" fill="#00f0ff" />
         ))}
-        <text x={points[0].x} y={height - 8} fontSize="11" fill="#9ca3af" textAnchor="start">
+        <text x={points[0].x} y={height - 8} fontSize="11" fill="#6f8299" textAnchor="start">
           {formatDate(points[0].date)}
         </text>
         <text
           x={points[points.length - 1].x}
           y={height - 8}
           fontSize="11"
-          fill="#9ca3af"
+          fill="#6f8299"
           textAnchor="end"
         >
           {formatDate(points[points.length - 1].date)}

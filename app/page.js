@@ -10,14 +10,15 @@ export default function Page() {
   const [errorMsg, setErrorMsg] = useState("");
   const [suggestions, setSuggestions] = useState([]);
 
-  // 初回表示時に登録済みの案件一覧を軽く取得しておき、
-  // ワンタップで検索できるチップとして出す
+  // 初回表示時に、ワンタップで検索できるおすすめチップを少数だけ出す。
+  // 登録件数が増えてもチップの壁で検索結果が下に埋もれないよう、
+  // 件数を絞り、検索実行後は非表示にする(どこ得のように結果をすぐ見せる)。
   useEffect(() => {
     fetch(`/api/search?q=`)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data.results)) {
-          setSuggestions(data.results.map((c) => c.canonicalName));
+          setSuggestions(data.results.slice(0, 8).map((c) => c.canonicalName));
         }
       })
       .catch(() => {});
@@ -71,7 +72,7 @@ export default function Page() {
         各ポイントサイトの還元額を横断比較できます。未登録の案件はAIがWeb検索して調べます（少し時間がかかります）。
       </p>
 
-      {suggestions.length > 0 && (
+      {status === "idle" && suggestions.length > 0 && (
         <div className="chip-row">
           {suggestions.map((name) => (
             <button

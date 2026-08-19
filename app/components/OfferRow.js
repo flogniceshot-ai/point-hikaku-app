@@ -15,7 +15,7 @@ function formatFetchedAt(fetchedAt) {
   return { label: `${ymd}時点`, stale: diffDays >= 30 };
 }
 
-export default function OfferRow({ offer, isTop, rank }) {
+export default function OfferRow({ offer, isTop, rank, campaignId }) {
   const isRate = offer.value != null && offer.value < 100;
   const fetched = formatFetchedAt(offer.fetchedAt);
   // メディア名のリンク先は、本来はASP発行のアフィリエイトリンク(mediaAffiliateUrl)。
@@ -78,10 +78,17 @@ export default function OfferRow({ offer, isTop, rank }) {
         )}
       </span>
       <span className="offer-right">
-        <span className="offer-value">
-          {offer.value}
-          {isRate ? "%" : "P"}
-        </span>
+        {campaignId ? (
+          <a href={`/campaigns/${campaignId}`} className="offer-value offer-value-link" aria-label="案件詳細ページを見る">
+            {offer.value}
+            {isRate ? "%" : "P"}
+          </a>
+        ) : (
+          <span className="offer-value">
+            {offer.value}
+            {isRate ? "%" : "P"}
+          </span>
+        )}
       </span>
     </div>
   );

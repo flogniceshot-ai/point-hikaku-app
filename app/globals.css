@@ -351,6 +351,19 @@ a {
   text-shadow: 0 0 12px rgba(0, 240, 255, 0.55);
 }
 
+.offer-value-link {
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.15s ease, color 0.15s ease;
+}
+
+.offer-value-link:hover {
+  color: var(--color-primary);
+  text-decoration-color: currentColor;
+}
+
 .offer-source-link {
   font-size: 11px;
   font-weight: 600;

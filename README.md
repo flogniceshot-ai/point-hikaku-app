@@ -1,4 +1,4 @@
-# ポイ得ナビ API (Next.js API Routes)
+# ポイ活ナビ API (Next.js API Routes)
 
 ## これは何か
 `backend_design.md` / `db_schema.sql` を土台にした、実際に動くAPIの実装です。

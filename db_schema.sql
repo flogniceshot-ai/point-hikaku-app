@@ -1,4 +1,4 @@
--- ポイ得ナビ: 本番DB(Supabase/PostgreSQL)用スキーマ
+-- ポイ活ナビ: 本番DB(Supabase/PostgreSQL)用スキーマ
 -- lib/db.js, scripts/seed.js が前提としているテーブル構造に合わせています。
 -- Supabaseの SQL Editor にこの内容を貼り付けて実行してください。
 

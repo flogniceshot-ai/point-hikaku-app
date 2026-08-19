@@ -1,7 +1,7 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "ポイ得ナビ | ポイントサイト横断比較",
+  title: "ポイ活ナビ | ポイントサイト横断比較",
   description: "複数のポイントサイトの還元額を横断検索して比較できます。",
 };
 
@@ -12,7 +12,7 @@ export default function RootLayout({ children }) {
         <header className="site-header">
           <div className="site-header-inner">
             <a href="/" className="site-logo">
-              ポイ得ナビ
+              ポイ活ナビ
             </a>
             <span className="site-tagline">ポイントサイト横断比較検索</span>
           </div>

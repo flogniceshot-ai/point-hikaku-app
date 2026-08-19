@@ -148,7 +148,7 @@ a {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 28px;
+  margin-bottom: 18px;
 }
 
 .chip {
@@ -208,11 +208,11 @@ a {
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: 20px;
+  padding: 16px;
 }
 
 .campaign-card {
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .campaign-card-header {
@@ -220,20 +220,20 @@ a {
   justify-content: space-between;
   align-items: flex-start;
   gap: 12px;
-  margin-bottom: 14px;
+  margin-bottom: 10px;
 }
 
 .campaign-name {
   font-size: 17px;
   font-weight: 700;
   margin: 0;
-}
-
-.campaign-name-link {
   display: inline-flex;
   align-items: baseline;
   gap: 10px;
   flex-wrap: wrap;
+}
+
+.campaign-name-link {
   color: var(--color-text);
 }
 
@@ -241,15 +241,16 @@ a {
   color: var(--color-primary);
 }
 
-.campaign-name-link:hover .campaign-name-arrow {
-  text-decoration: underline;
-}
-
 .campaign-name-arrow {
   font-size: 12px;
   font-weight: 600;
-  color: var(--color-primary);
+  color: var(--color-text-muted);
   white-space: nowrap;
+}
+
+.campaign-name-arrow:hover {
+  color: var(--color-primary);
+  text-decoration: underline;
 }
 
 .badge {
@@ -274,31 +275,53 @@ a {
 .offer-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0;
 }
 
 .offer-row {
   display: flex;
   align-items: center;
+  gap: 10px;
   justify-content: space-between;
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: var(--color-surface-2);
+  padding: 7px 10px;
+  border-radius: 6px;
   border: 1px solid transparent;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.offer-row:last-child {
+  border-bottom: none;
 }
 
 .offer-row.is-top {
+  padding: 10px 12px;
+  margin-bottom: 2px;
   background: linear-gradient(135deg, rgba(0, 240, 255, 0.1), rgba(255, 45, 149, 0.06));
   border: 1px solid var(--color-border-strong);
+  border-radius: 10px;
   box-shadow: var(--shadow-glow);
+}
+
+.offer-rank {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-dim);
+  width: 18px;
+  flex-shrink: 0;
+}
+
+.offer-row.is-top .offer-rank {
+  color: var(--color-primary);
 }
 
 .offer-site {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 600;
+  flex: 1;
+  min-width: 0;
 }
 
 .site-dot {
@@ -479,6 +502,10 @@ a {
   }
 
   .offer-row {
+    padding: 6px 8px;
+  }
+
+  .offer-row.is-top {
     padding: 9px 10px;
   }
 

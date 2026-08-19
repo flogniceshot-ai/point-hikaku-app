@@ -39,7 +39,7 @@ export default async function CampaignDetailPage({ params }) {
       <div className="card">
         <div className="offer-list">
           {offers.map((offer, i) => (
-            <OfferRow key={offer.siteSlug || i} offer={offer} isTop={i === 0} />
+            <OfferRow key={offer.siteSlug || i} offer={offer} isTop={i === 0} rank={i + 1} />
           ))}
         </div>
         {campaign.aiNote && <p className="ai-note">{campaign.aiNote}</p>}

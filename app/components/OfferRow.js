@@ -13,9 +13,12 @@ function formatFetchedAt(fetchedAt) {
   return { label: `${ymd}時点`, stale: diffDays >= 30 };
 }
 
-export default function OfferRow({ offer, isTop }) {
+export default function OfferRow({ offer, isTop, rank }) {
   const isRate = offer.value != null && offer.value < 100;
   const fetched = formatFetchedAt(offer.fetchedAt);
+  // メディア名のリンク先は、本来はASP発行のアフィリエイトリンク(mediaAffiliateUrl)。
+  // まだ発行前のサイトは、登録済みの出典元URL(sourceUrl)を暫定的に使う。
+  const clickUrl = offer.mediaAffiliateUrl || offer.sourceUrl;
   const siteNameContent = (
     <>
       <span className="site-dot" style={{ background: offer.colorHex || "#999" }} />
@@ -24,14 +27,15 @@ export default function OfferRow({ offer, isTop }) {
   );
   return (
     <div className={`offer-row${isTop ? " is-top" : ""}`}>
+      {rank != null && <span className="offer-rank">{String(rank).padStart(2, "0")}</span>}
       <span className="offer-site">
-        {offer.sourceUrl ? (
+        {clickUrl ? (
           <a
             className="offer-site-link"
-            href={offer.sourceUrl}
+            href={clickUrl}
             target="_blank"
-            rel="noopener noreferrer nofollow"
-            aria-label={`${offer.site}の案件ページを開く`}
+            rel="noopener noreferrer nofollow sponsored"
+            aria-label={`${offer.site}へ移動`}
           >
             {siteNameContent}
           </a>

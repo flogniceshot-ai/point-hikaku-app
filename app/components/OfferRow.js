@@ -1,3 +1,5 @@
+import { SITE_HOMEPAGES } from "../../lib/siteHomepages";
+
 // 最終確認日時を「今日」「3日前」「2026/8/10」のような短い相対表記にする。
 // 古すぎる(30日以上)場合はユーザーが鮮度を疑えるよう、あえて年月日で表示する。
 function formatFetchedAt(fetchedAt) {
@@ -17,8 +19,9 @@ export default function OfferRow({ offer, isTop, rank }) {
   const isRate = offer.value != null && offer.value < 100;
   const fetched = formatFetchedAt(offer.fetchedAt);
   // メディア名のリンク先は、本来はASP発行のアフィリエイトリンク(mediaAffiliateUrl)。
-  // まだ発行前のサイトは、登録済みの出典元URL(sourceUrl)を暫定的に使う。
-  const clickUrl = offer.mediaAffiliateUrl || offer.sourceUrl;
+  // まだ発行前のサイトは、出典元の引用ブログ(sourceUrl)ではなく、
+  // サイト本体のトップページ(SITE_HOMEPAGES)を暫定的に使う。
+  const clickUrl = offer.mediaAffiliateUrl || SITE_HOMEPAGES[offer.siteSlug] || offer.sourceUrl;
   const siteNameContent = (
     <>
       <span className="site-dot" style={{ background: offer.colorHex || "#999" }} />

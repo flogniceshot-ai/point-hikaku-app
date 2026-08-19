@@ -1,12 +1,16 @@
 import OfferRow from "./OfferRow";
+import { SITE_HOMEPAGES } from "../../lib/siteHomepages";
 
 export default function CampaignCard({ campaign }) {
   const offers = campaign.offers || [];
   // 案件名クリックは、ベストオファー(先頭=還元額最大)のアフィリエイトリンクへ。
-  // まだアフィリエイトリンク未発行のサイトは出典元URLを暫定的に使う。
+  // まだアフィリエイトリンク未発行のサイトは、出典元の引用ブログ(sourceUrl)ではなく
+  // サイト本体のトップページ(SITE_HOMEPAGES)を暫定的に使う。
   // 自社の案件詳細ページへは、別途「詳細を見る」リンクから移動できるようにする。
   const bestOffer = offers[0];
-  const bestClickUrl = bestOffer ? bestOffer.mediaAffiliateUrl || bestOffer.sourceUrl : null;
+  const bestClickUrl = bestOffer
+    ? bestOffer.mediaAffiliateUrl || SITE_HOMEPAGES[bestOffer.siteSlug] || bestOffer.sourceUrl
+    : null;
   return (
     <div className="card campaign-card">
       <div className="campaign-card-header">

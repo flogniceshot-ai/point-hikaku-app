@@ -1,5 +1,21 @@
+// 最終確認日時を「今日」「3日前」「2026/8/10」のような短い相対表記にする。
+// 古すぎる(30日以上)場合はユーザーが鮮度を疑えるよう、あえて年月日で表示する。
+function formatFetchedAt(fetchedAt) {
+  if (!fetchedAt) return null;
+  const date = new Date(fetchedAt);
+  if (Number.isNaN(date.getTime())) return null;
+  const diffMs = Date.now() - date.getTime();
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  if (diffDays <= 0) return { label: "今日確認", stale: false };
+  if (diffDays === 1) return { label: "1日前に確認", stale: false };
+  if (diffDays < 7) return { label: `${diffDays}日前に確認`, stale: false };
+  const ymd = date.toLocaleDateString("ja-JP", { year: "numeric", month: "numeric", day: "numeric" });
+  return { label: `${ymd}時点`, stale: diffDays >= 30 };
+}
+
 export default function OfferRow({ offer, isTop }) {
   const isRate = offer.value != null && offer.value < 100;
+  const fetched = formatFetchedAt(offer.fetchedAt);
   const siteNameContent = (
     <>
       <span className="site-dot" style={{ background: offer.colorHex || "#999" }} />
@@ -24,6 +40,19 @@ export default function OfferRow({ offer, isTop }) {
         )}
         {offer.firstTimeOnly && <span className="offer-tags">初回限定</span>}
         {offer.guaranteed && <span className="offer-tags">保証あり</span>}
+        {fetched && (
+          <span
+            className="offer-fetched-at"
+            style={{
+              fontSize: 11,
+              color: fetched.stale ? "#b45309" : "#9ca3af",
+              marginLeft: 6,
+            }}
+            title={new Date(offer.fetchedAt).toLocaleString("ja-JP")}
+          >
+            {fetched.label}
+          </span>
+        )}
       </span>
       <span className="offer-right">
         <span className="offer-value">

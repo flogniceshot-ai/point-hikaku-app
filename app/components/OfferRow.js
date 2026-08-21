@@ -38,7 +38,7 @@ export default function OfferRow({ offer, isTop, rank, campaignId }) {
         <img
           src={faviconUrl}
           alt=""
-          className="site-logo"
+          className="offer-site-logo"
           width={16}
           height={16}
           onError={() => setLogoError(true)}

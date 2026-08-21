@@ -1,4 +1,7 @@
-import { SITE_HOMEPAGES, isSiteOwnUrl } from "../../lib/siteHomepages";
+"use client";
+
+import { useState } from "react";
+import { SITE_HOMEPAGES, isSiteOwnUrl, getSiteFaviconUrl } from "../../lib/siteHomepages";
 
 // 最終確認日時を「今日」「3日前」「2026/8/10」のような短い相対表記にする。
 // 古すぎる(30日以上)場合はユーザーが鮮度を疑えるよう、あえて年月日で表示する。
@@ -18,6 +21,7 @@ function formatFetchedAt(fetchedAt) {
 export default function OfferRow({ offer, isTop, rank, campaignId }) {
   const isRate = offer.value != null && offer.value < 100;
   const fetched = formatFetchedAt(offer.fetchedAt);
+  const [logoError, setLogoError] = useState(false);
   // メディア名のリンク先は、本来はASP発行のアフィリエイトリンク(mediaAffiliateUrl)。
   // まだ発行前のサイトは、出典元の引用ブログ(sourceUrl)ではなく、
   // サイト本体のトップページ(SITE_HOMEPAGES)を暫定的に使う。
@@ -27,9 +31,21 @@ export default function OfferRow({ offer, isTop, rank, campaignId }) {
   // 自社の案件詳細ページ(/campaigns/[id])にフォールバックする。
   const hasOwnOfferUrl = isSiteOwnUrl(offer.sourceUrl, offer.siteSlug);
   const pointValueUrl = hasOwnOfferUrl ? offer.sourceUrl : campaignId ? `/campaigns/${campaignId}` : null;
+  const faviconUrl = getSiteFaviconUrl(offer.siteSlug);
   const siteNameContent = (
     <>
-      <span className="site-dot" style={{ background: offer.colorHex || "#999" }} />
+      {faviconUrl && !logoError ? (
+        <img
+          src={faviconUrl}
+          alt=""
+          className="site-logo"
+          width={16}
+          height={16}
+          onError={() => setLogoError(true)}
+        />
+      ) : (
+        <span className="site-dot" style={{ background: offer.colorHex || "#999" }} />
+      )}
       {offer.site}
     </>
   );
@@ -46,6 +62,9 @@ export default function OfferRow({ offer, isTop, rank, campaignId }) {
             aria-label={`${offer.site}へ移動`}
           >
             {siteNameContent}
+            <span className="link-affordance" aria-hidden="true">
+              ↗
+            </span>
           </a>
         ) : (
           siteNameContent
@@ -94,6 +113,9 @@ export default function OfferRow({ offer, isTop, rank, campaignId }) {
           >
             {offer.value}
             {isRate ? "%" : "P"}
+            <span className="link-affordance link-affordance-value" aria-hidden="true">
+              {hasOwnOfferUrl ? "↗" : "›"}
+            </span>
           </a>
         ) : (
           <span className="offer-value">

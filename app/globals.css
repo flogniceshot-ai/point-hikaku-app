@@ -272,6 +272,35 @@ a {
   color: var(--color-gold);
 }
 
+.sort-toggle {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.sort-toggle-btn {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.sort-toggle-btn:hover {
+  color: var(--color-text);
+  border-color: var(--color-border-strong);
+}
+
+.sort-toggle-btn.is-active {
+  color: #04121a;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
 .offer-list {
   display: flex;
   flex-direction: column;
@@ -332,6 +361,16 @@ a {
   box-shadow: 0 0 6px currentColor;
 }
 
+.site-logo {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  border-radius: 4px;
+  background: #fff;
+  padding: 1px;
+  object-fit: contain;
+}
+
 .offer-right {
   display: flex;
   align-items: center;
@@ -353,15 +392,36 @@ a {
 
 .offer-value-link {
   cursor: pointer;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
   text-decoration: underline;
-  text-decoration-color: transparent;
+  text-decoration-style: dotted;
+  text-decoration-color: var(--color-text-dim);
   text-underline-offset: 3px;
   transition: text-decoration-color 0.15s ease, color 0.15s ease;
 }
 
 .offer-value-link:hover {
   color: var(--color-primary);
+  text-decoration-style: solid;
   text-decoration-color: currentColor;
+}
+
+.link-affordance {
+  font-size: 11px;
+  color: var(--color-text-dim);
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.offer-site-link:hover .link-affordance,
+.offer-value-link:hover .link-affordance {
+  color: var(--color-primary);
+  transform: translate(1px, -1px);
+}
+
+.link-affordance-value {
+  font-size: 13px;
 }
 
 .offer-source-link {
@@ -382,16 +442,18 @@ a {
 .offer-site-link {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   color: var(--color-text);
   text-decoration: underline;
-  text-decoration-color: transparent;
+  text-decoration-style: dotted;
+  text-decoration-color: var(--color-text-dim);
   text-underline-offset: 2px;
   transition: text-decoration-color 0.15s ease, color 0.15s ease;
 }
 
 .offer-site-link:hover {
   color: var(--color-primary);
+  text-decoration-style: solid;
   text-decoration-color: currentColor;
 }
 

@@ -97,7 +97,7 @@ function extractJson(text) {
 
 async function researchCampaign(keyword) {
   const res = await anthropic.messages.create({
-    model: "claude-sonnet-4-6",
+    model: "claude-sonnet-5",
     max_tokens: 2000,
     tools: [{ type: "web_search_20250305", name: "web_search" }],
     messages: [{ role: "user", content: buildPrompt(keyword) }],

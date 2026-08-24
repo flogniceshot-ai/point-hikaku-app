@@ -1,5 +1,6 @@
+import Script from "next/script";
 import "./globals.css";
-import { SITE_NAME, SITE_URL, SITE_DESCRIPTION } from "../lib/site";
+import { SITE_NAME, SITE_URL, SITE_DESCRIPTION, GA_MEASUREMENT_ID } from "../lib/site";
 
 export const metadata = {
   metadataBase: new URL(SITE_URL),
@@ -30,6 +31,18 @@ export default function RootLayout({ children }) {
   return (
     <html lang="ja">
       <body>
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script id="ga-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${GA_MEASUREMENT_ID}');
+          `}
+        </Script>
         {/* ステルスマーケティング規制(景品表示法)対応: ファーストビューで
             アフィリエイト広告であることを明示する */}
         <div className="pr-banner">

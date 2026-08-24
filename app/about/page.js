@@ -31,12 +31,12 @@ export default function AboutPage() {
 
       <h2>お問い合わせ</h2>
       <p>
-        現在、お問い合わせフォームを準備中です。ご不便をおかけしますが、今しばらくお待ちください。
+        掲載内容の誤りのご指摘、掲載・提携のご相談などは<a href="/contact">お問い合わせフォーム</a>よりお送りください。
       </p>
 
       <h2>関連ページ</h2>
       <p>
-        <a href="/privacy">プライバシーポリシー</a> ／ <a href="/terms">利用規約</a>
+        <a href="/contact">お問い合わせ</a> ／ <a href="/privacy">プライバシーポリシー</a> ／ <a href="/terms">利用規約</a>
       </p>
     </div>
   );

@@ -63,12 +63,12 @@ export default function PrivacyPage() {
 
       <h2>7. お問い合わせ</h2>
       <p>
-        本ポリシーに関するお問い合わせは、現在準備中のお問い合わせフォームより承ります。
+        本ポリシーに関するお問い合わせは、<a href="/contact">お問い合わせフォーム</a>より承ります。
       </p>
 
       <h2>関連ページ</h2>
       <p>
-        <a href="/about">運営者情報</a> ／ <a href="/terms">利用規約</a>
+        <a href="/contact">お問い合わせ</a> ／ <a href="/about">運営者情報</a> ／ <a href="/terms">利用規約</a>
       </p>
     </div>
   );

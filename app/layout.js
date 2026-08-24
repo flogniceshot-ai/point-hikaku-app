@@ -30,6 +30,7 @@ export default function RootLayout({ children }) {
               <a href="/about">運営者情報</a>
               <a href="/privacy">プライバシーポリシー</a>
               <a href="/terms">利用規約</a>
+              <a href="/contact">お問い合わせ</a>
             </nav>
             <p className="site-footer-copy">© {new Date().getFullYear()} ポイ活ナビ運営事務局</p>
           </div>

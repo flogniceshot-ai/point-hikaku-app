@@ -84,7 +84,7 @@ export default function TermsPage() {
 
       <h2>関連ページ</h2>
       <p>
-        <a href="/about">運営者情報</a> ／ <a href="/privacy">プライバシーポリシー</a>
+        <a href="/contact">お問い合わせ</a> ／ <a href="/about">運営者情報</a> ／ <a href="/privacy">プライバシーポリシー</a>
       </p>
     </div>
   );

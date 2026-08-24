@@ -1,8 +1,26 @@
 import "./globals.css";
+import { SITE_NAME, SITE_URL, SITE_DESCRIPTION } from "../lib/site";
 
 export const metadata = {
-  title: "ポイ活ナビ | ポイントサイト横断比較",
-  description: "複数のポイントサイトの還元額を横断検索して比較できます。",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: `${SITE_NAME} | ポイントサイト横断比較`,
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    title: `${SITE_NAME} | ポイントサイト横断比較`,
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    locale: "ja_JP",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: `${SITE_NAME} | ポイントサイト横断比較`,
+    description: SITE_DESCRIPTION,
+  },
 };
 
 export default function RootLayout({ children }) {

@@ -1,6 +1,53 @@
 import { getCampaignById, getCampaignHistory, usingRealDatabase, DATA_NOTE } from "../../../lib/db";
+import { SITE_NAME, SITE_URL } from "../../../lib/site";
 import OfferRow from "../../components/OfferRow";
 import HistoryChart from "../../components/HistoryChart";
+
+function bestOfferSummary(campaign) {
+  const offers = campaign.offers || [];
+  if (offers.length === 0) return null;
+  // offersはDB/モックいずれも既に還元額の高い順で返ってくる
+  const top = offers[0];
+  if (campaign.rewardType === "rate") {
+    return `最高${top.value}%（${top.site}）`;
+  }
+  const yen = Math.round(top.value * (top.pointRate ?? 1));
+  return `最高${yen.toLocaleString("ja-JP")}円相当（${top.site}）`;
+}
+
+export async function generateMetadata({ params }) {
+  const { id } = await params;
+  const campaign = await getCampaignById(id);
+  if (!campaign) {
+    return { title: `案件が見つかりません | ${SITE_NAME}` };
+  }
+
+  const summary = bestOfferSummary(campaign);
+  const title = `${campaign.canonicalName}の還元率比較${summary ? "｜" + summary : ""} | ${SITE_NAME}`;
+  const description = `${campaign.canonicalName}について、ハピタス・モッピー・ちょびリッチなど主要ポイントサイトの還元額を横断比較。${
+    summary ? summary + "。" : ""
+  }どのサイト経由で申し込むのが一番お得か、${SITE_NAME}で確認できます。`;
+  const url = `${SITE_URL}/campaigns/${id}`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      title,
+      description,
+      url,
+      siteName: SITE_NAME,
+      locale: "ja_JP",
+      type: "website",
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description,
+    },
+  };
+}
 
 export default async function CampaignDetailPage({ params }) {
   const { id } = await params;

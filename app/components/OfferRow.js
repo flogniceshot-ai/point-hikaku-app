@@ -20,6 +20,11 @@ function formatFetchedAt(fetchedAt) {
 
 export default function OfferRow({ offer, isTop, rank, campaignId }) {
   const isRate = offer.value != null && offer.value < 100;
+  // ポイント数はサイトごとに交換レートが違う(例: ECナビは10pt=1円)ため、
+  // そのままでは他サイトと比較できない。pointRateを掛けた円換算額を併記する。
+  const pointRate = offer.pointRate ?? 1;
+  const yenValue = !isRate && offer.value != null ? Math.round(offer.value * pointRate) : null;
+  const showRawPoints = yenValue != null && pointRate !== 1;
   const fetched = formatFetchedAt(offer.fetchedAt);
   const [logoError, setLogoError] = useState(false);
   // メディア名のリンク先は、本来はASP発行のアフィリエイトリンク(mediaAffiliateUrl)。
@@ -111,16 +116,22 @@ export default function OfferRow({ offer, isTop, rank, campaignId }) {
               ? { target: "_blank", rel: "noopener noreferrer nofollow sponsored" }
               : {})}
           >
-            {offer.value}
-            {isRate ? "%" : "P"}
+            <span className="offer-value-main">
+              {isRate ? offer.value : yenValue?.toLocaleString("ja-JP")}
+              {isRate ? "%" : "円"}
+            </span>
+            {showRawPoints && <span className="offer-value-sub">（{offer.value.toLocaleString("ja-JP")}P）</span>}
             <span className="link-affordance link-affordance-value" aria-hidden="true">
               {hasOwnOfferUrl ? "↗" : "›"}
             </span>
           </a>
         ) : (
           <span className="offer-value">
-            {offer.value}
-            {isRate ? "%" : "P"}
+            <span className="offer-value-main">
+              {isRate ? offer.value : yenValue?.toLocaleString("ja-JP")}
+              {isRate ? "%" : "円"}
+            </span>
+            {showRawPoints && <span className="offer-value-sub">（{offer.value.toLocaleString("ja-JP")}P）</span>}
           </span>
         )}
       </span>

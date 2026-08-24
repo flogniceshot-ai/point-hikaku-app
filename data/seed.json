@@ -23,7 +23,7 @@
       "slug": "powl",
       "name": "Powl",
       "colorHex": "#14b8a6",
-      "pointRate": 1
+      "pointRate": 0.0952
     },
     {
       "slug": "pointincome",
@@ -47,13 +47,13 @@
       "slug": "ecnavi",
       "name": "ECナビ",
       "colorHex": "#f59e0b",
-      "pointRate": 1
+      "pointRate": 0.1
     },
     {
       "slug": "amefri",
       "name": "アメフリ",
       "colorHex": "#22c55e",
-      "pointRate": 1
+      "pointRate": 0.1
     },
     {
       "slug": "pointtown",

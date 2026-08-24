@@ -21,6 +21,9 @@ export const metadata = {
     title: `${SITE_NAME} | ポイントサイト横断比較`,
     description: SITE_DESCRIPTION,
   },
+  verification: {
+    google: "JLch6Qsksp4N4s6Ks54XyuQcQAmJbXvxCXJysD9D02c",
+  },
 };
 
 export default function RootLayout({ children }) {

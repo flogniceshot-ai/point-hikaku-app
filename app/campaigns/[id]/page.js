@@ -19,22 +19,23 @@ export async function generateMetadata({ params }) {
   const { id } = await params;
   const campaign = await getCampaignById(id);
   if (!campaign) {
-    return { title: `案件が見つかりません | ${SITE_NAME}` };
+    return { title: "案件が見つかりません" };
   }
 
   const summary = bestOfferSummary(campaign);
-  const title = `${campaign.canonicalName}の還元率比較${summary ? "｜" + summary : ""} | ${SITE_NAME}`;
+  const pageTitle = `${campaign.canonicalName}の還元率比較${summary ? "｜" + summary : ""}`;
+  const fullTitle = `${pageTitle} | ${SITE_NAME}`;
   const description = `${campaign.canonicalName}について、ハピタス・モッピー・ちょびリッチなど主要ポイントサイトの還元額を横断比較。${
     summary ? summary + "。" : ""
   }どのサイト経由で申し込むのが一番お得か、${SITE_NAME}で確認できます。`;
   const url = `${SITE_URL}/campaigns/${id}`;
 
   return {
-    title,
+    title: pageTitle,
     description,
     alternates: { canonical: url },
     openGraph: {
-      title,
+      title: fullTitle,
       description,
       url,
       siteName: SITE_NAME,
@@ -43,7 +44,7 @@ export async function generateMetadata({ params }) {
     },
     twitter: {
       card: "summary",
-      title,
+      title: fullTitle,
       description,
     },
   };

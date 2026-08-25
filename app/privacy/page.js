@@ -1,7 +1,7 @@
 import { SITE_URL } from "../../lib/site";
 
 export const metadata = {
-  title: "プライバシーポリシー | ポイ活ナビ",
+  title: "プライバシーポリシー",
   description: "ポイ活ナビにおける個人情報・Cookie・アクセス解析等の取り扱いについて。",
   alternates: { canonical: `${SITE_URL}/privacy` },
 };

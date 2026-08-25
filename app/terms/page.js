@@ -1,7 +1,7 @@
 import { SITE_URL } from "../../lib/site";
 
 export const metadata = {
-  title: "利用規約 | ポイ活ナビ",
+  title: "利用規約",
   description: "ポイ活ナビのご利用にあたっての利用規約です。",
   alternates: { canonical: `${SITE_URL}/terms` },
 };

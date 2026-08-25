@@ -67,8 +67,26 @@ export default async function CampaignDetailPage({ params }) {
   const history = await getCampaignHistory(id);
   const offers = campaign.offers || [];
 
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "ホーム", item: SITE_URL },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: campaign.canonicalName,
+        item: `${SITE_URL}/campaigns/${id}`,
+      },
+    ],
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       <a href="/" className="back-link">
         ← 検索に戻る
       </a>

@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import OfferRow from "./OfferRow";
-import { SITE_HOMEPAGES } from "../../lib/siteHomepages";
+import { SITE_HOMEPAGES, buildDeepAffiliateUrl } from "../../lib/siteHomepages";
 
 const SORT_OPTIONS = [
   { key: "value", label: "還元額順" },
@@ -25,7 +25,10 @@ export default function CampaignCard({ campaign }) {
   // 自社の案件詳細ページ(履歴グラフ付き)へは、各行のポイント数クリックから移動する。
   const bestOffer = offers[0];
   const bestClickUrl = bestOffer
-    ? bestOffer.mediaAffiliateUrl || SITE_HOMEPAGES[bestOffer.siteSlug] || bestOffer.sourceUrl
+    ? buildDeepAffiliateUrl(bestOffer) ||
+      bestOffer.mediaAffiliateUrl ||
+      SITE_HOMEPAGES[bestOffer.siteSlug] ||
+      bestOffer.sourceUrl
     : null;
   return (
     <div className="card campaign-card">

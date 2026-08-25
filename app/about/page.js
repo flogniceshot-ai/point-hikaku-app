@@ -1,6 +1,9 @@
+import { SITE_URL } from "../../lib/site";
+
 export const metadata = {
   title: "運営者情報 | ポイ活ナビ",
   description: "ポイ活ナビの運営者情報とアフィリエイトプログラムについて。",
+  alternates: { canonical: `${SITE_URL}/about` },
 };
 
 export default function AboutPage() {

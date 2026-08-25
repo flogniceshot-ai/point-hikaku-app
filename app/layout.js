@@ -9,6 +9,7 @@ export const metadata = {
     template: `%s | ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
+  alternates: { canonical: SITE_URL },
   openGraph: {
     title: `${SITE_NAME} | ポイントサイト横断比較`,
     description: SITE_DESCRIPTION,

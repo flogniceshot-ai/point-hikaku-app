@@ -69,12 +69,14 @@ export default function CampaignCard({ campaign }) {
               offer={offer}
               isTop={originalIndex === 0}
               rank={originalIndex + 1}
-              campaignId={campaign.id}
             />
           );
         })}
       </div>
       {campaign.aiNote && <p className="ai-note">{campaign.aiNote}</p>}
+      <a href={`/campaigns/${campaign.id}`} className="offer-source-link campaign-detail-link">
+        還元額の推移を見る ›
+      </a>
     </div>
   );
 }

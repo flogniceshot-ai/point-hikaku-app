@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { SITE_HOMEPAGES, isSiteOwnUrl, getSiteFaviconUrl } from "../../lib/siteHomepages";
+import { SITE_HOMEPAGES, getSiteFaviconUrl } from "../../lib/siteHomepages";
 
 // 最終確認日時を「今日」「3日前」「2026/8/10」のような短い相対表記にする。
 // 古すぎる(30日以上)場合はユーザーが鮮度を疑えるよう、あえて年月日で表示する。
@@ -18,7 +18,7 @@ function formatFetchedAt(fetchedAt) {
   return { label: `${ymd}時点`, stale: diffDays >= 30 };
 }
 
-export default function OfferRow({ offer, isTop, rank, campaignId }) {
+export default function OfferRow({ offer, isTop, rank }) {
   const isRate = offer.value != null && offer.value < 100;
   // ポイント数はサイトごとに交換レートが違う(例: ECナビは10pt=1円)ため、
   // そのままでは他サイトと比較できない。pointRateを掛けた円換算額を併記する。
@@ -27,15 +27,12 @@ export default function OfferRow({ offer, isTop, rank, campaignId }) {
   const showRawPoints = yenValue != null && pointRate !== 1;
   const fetched = formatFetchedAt(offer.fetchedAt);
   const [logoError, setLogoError] = useState(false);
-  // メディア名のリンク先は、本来はASP発行のアフィリエイトリンク(mediaAffiliateUrl)。
-  // まだ発行前のサイトは、出典元の引用ブログ(sourceUrl)ではなく、
+  // メディア名・還元額どちらのリンク先も、本来はASP発行のアフィリエイトリンク(mediaAffiliateUrl)に統一する。
+  // 以前は還元額側だけ出典元ページ(sourceUrl)に飛ばしていたため、最も目立つ数字をクリックしても
+  // アフィリエイト計測されないケースがあった(会員登録が発生してもポイ活ナビ経由と計測されない)。
+  // まだアフィリエイトリンク未発行のサイトは、出典元の引用ブログではなく、
   // サイト本体のトップページ(SITE_HOMEPAGES)を暫定的に使う。
   const clickUrl = offer.mediaAffiliateUrl || SITE_HOMEPAGES[offer.siteSlug] || offer.sourceUrl;
-  // ポイント数のリンク先は、そのメディア自身の案件詳細ページ(sourceUrlがそのサイト
-  // 自身のドメインの場合のみ)。引用ブログのsourceUrlや未登録の場合は、
-  // 自社の案件詳細ページ(/campaigns/[id])にフォールバックする。
-  const hasOwnOfferUrl = isSiteOwnUrl(offer.sourceUrl, offer.siteSlug);
-  const pointValueUrl = hasOwnOfferUrl ? offer.sourceUrl : campaignId ? `/campaigns/${campaignId}` : null;
   const faviconUrl = getSiteFaviconUrl(offer.siteSlug);
   const siteNameContent = (
     <>
@@ -60,13 +57,14 @@ export default function OfferRow({ offer, isTop, rank, campaignId }) {
       <span className="offer-site">
         {clickUrl ? (
           <a
-            className="offer-site-link"
+            className={`offer-site-link${isTop ? " offer-site-link-cta" : ""}`}
             href={clickUrl}
             target="_blank"
             rel="noopener noreferrer nofollow sponsored"
-            aria-label={`${offer.site}へ移動`}
+            aria-label={isTop ? `${offer.site}で申し込む` : `${offer.site}へ移動`}
           >
             {siteNameContent}
+            {isTop && <span className="offer-cta-label">で申し込む</span>}
             <span className="link-affordance" aria-hidden="true">
               ↗
             </span>
@@ -107,14 +105,13 @@ export default function OfferRow({ offer, isTop, rank, campaignId }) {
         )}
       </span>
       <span className="offer-right">
-        {pointValueUrl ? (
+        {clickUrl ? (
           <a
-            href={pointValueUrl}
+            href={clickUrl}
             className="offer-value offer-value-link"
-            aria-label={hasOwnOfferUrl ? `${offer.site}の案件詳細ページを見る` : "案件詳細ページを見る"}
-            {...(hasOwnOfferUrl
-              ? { target: "_blank", rel: "noopener noreferrer nofollow sponsored" }
-              : {})}
+            target="_blank"
+            rel="noopener noreferrer nofollow sponsored"
+            aria-label={`${offer.site}で申し込む`}
           >
             <span className="offer-value-main">
               {isRate ? offer.value : yenValue?.toLocaleString("ja-JP")}
@@ -122,7 +119,7 @@ export default function OfferRow({ offer, isTop, rank, campaignId }) {
             </span>
             {showRawPoints && <span className="offer-value-sub">（{offer.value.toLocaleString("ja-JP")}P）</span>}
             <span className="link-affordance link-affordance-value" aria-hidden="true">
-              {hasOwnOfferUrl ? "↗" : "›"}
+              ↗
             </span>
           </a>
         ) : (

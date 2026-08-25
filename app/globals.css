@@ -467,6 +467,37 @@ a {
   text-decoration-color: currentColor;
 }
 
+/* 一番還元額が高いオファーだけ、テキストリンクではなくCTAボタンとして目立たせる。
+   目線が集まりやすい要素をそのままアフィリエイト遷移の入り口にする狙い。 */
+.offer-site-link-cta {
+  background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+  color: #04121a;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 999px;
+  text-decoration: none;
+  box-shadow: 0 0 14px rgba(0, 240, 255, 0.35);
+}
+
+.offer-site-link-cta:hover {
+  color: #04121a;
+  filter: brightness(1.08);
+  text-decoration: none;
+}
+
+.offer-site-link-cta .link-affordance {
+  color: #04121a;
+}
+
+.offer-cta-label {
+  font-weight: 700;
+}
+
+.campaign-detail-link {
+  display: inline-block;
+  margin-top: 10px;
+}
+
 .offer-tags {
   font-size: 11px;
   color: var(--color-text-muted);

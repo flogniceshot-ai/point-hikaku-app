@@ -1,10 +1,12 @@
 import { searchCampaigns } from "../lib/db";
 import { SITE_URL } from "../lib/site";
 import { CATEGORIES } from "../lib/categories";
+import { SITE_GUIDES } from "../lib/siteGuides";
 
 export default async function sitemap() {
   const staticRoutes = [
     { url: `${SITE_URL}/`, changeFrequency: "hourly", priority: 1 },
+    { url: `${SITE_URL}/guide`, changeFrequency: "monthly", priority: 0.5 },
     { url: `${SITE_URL}/about`, changeFrequency: "monthly", priority: 0.3 },
     { url: `${SITE_URL}/privacy`, changeFrequency: "monthly", priority: 0.2 },
     { url: `${SITE_URL}/terms`, changeFrequency: "monthly", priority: 0.2 },
@@ -15,6 +17,12 @@ export default async function sitemap() {
     url: `${SITE_URL}/category/${c.slug}`,
     changeFrequency: "daily",
     priority: 0.6,
+  }));
+
+  const guideRoutes = SITE_GUIDES.map((g) => ({
+    url: `${SITE_URL}/guide/${g.slug}`,
+    changeFrequency: "monthly",
+    priority: 0.5,
   }));
 
   let campaignRoutes = [];
@@ -36,5 +44,5 @@ export default async function sitemap() {
     // DB接続エラー時などはサイトマップを静的ページのみで返す
   }
 
-  return [...staticRoutes, ...categoryRoutes, ...campaignRoutes];
+  return [...staticRoutes, ...categoryRoutes, ...guideRoutes, ...campaignRoutes];
 }

@@ -84,6 +84,7 @@ export default function RootLayout({ children }) {
         <footer className="site-footer">
           <div className="site-footer-inner">
             <nav className="site-footer-nav">
+              <a href="/guide">サイト解説</a>
               <a href="/about">運営者情報</a>
               <a href="/privacy">プライバシーポリシー</a>
               <a href="/terms">利用規約</a>

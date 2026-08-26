@@ -196,11 +196,23 @@ function parseText(text, anchors) {
   return found;
 }
 
+// まだ対応していないポイントサイトのワンクリック追加候補。
+// 公式URL・ポイント交換レートは事前に調査済みの値。
+const NEW_SITE_PRESETS = [
+  { slug: "lifemedia", name: "ライフメディア", siteUrl: "https://lifemedia.jp/", pointRate: 1, colorHex: "#3b82f6" },
+  { slug: "getmoney", name: "GetMoney!", siteUrl: "https://dietnavi.com/pc/", pointRate: 0.1, colorHex: "#ef4444" },
+  { slug: "gendama", name: "げん玉", siteUrl: "https://www.gendama.jp/", pointRate: 0.1, colorHex: "#d946ef" },
+  { slug: "sugutama", name: "すぐたま", siteUrl: "https://sugutama.jp/", pointRate: 0.5, colorHex: "#06b6d4" },
+  { slug: "dotmoney", name: "ドットマネー", siteUrl: "https://d-money.jp/", pointRate: 1, colorHex: "#f43f5e" },
+  { slug: "lineshopping", name: "LINEショッピング", siteUrl: "https://shopping.line.me/", pointRate: 1, colorHex: "#00b900" },
+];
+
 export default function AdminImportPage() {
   const [secret, setSecret] = useState("");
   const [unlocked, setUnlocked] = useState(false);
   const [sites, setSites] = useState([]);
   const [siteSlug, setSiteSlug] = useState("");
+  const [addSiteStatus, setAddSiteStatus] = useState({}); // slug -> "adding" | "done" | "error"
   const [rawText, setRawText] = useState("");
   const [pastedHtml, setPastedHtml] = useState("");
   const [pageUrl, setPageUrl] = useState("");
@@ -214,17 +226,43 @@ export default function AdminImportPage() {
   const [deleteSearchStatus, setDeleteSearchStatus] = useState("idle");
   const [deleteActionMsg, setDeleteActionMsg] = useState("");
 
-  useEffect(() => {
+  function reloadSites(preferSlug) {
     fetch("/api/sites")
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data.sites)) {
           setSites(data.sites);
-          if (data.sites.length > 0) setSiteSlug(data.sites[0].slug);
+          if (preferSlug && data.sites.some((s) => s.slug === preferSlug)) setSiteSlug(preferSlug);
+          else if (data.sites.length > 0 && !siteSlug) setSiteSlug(data.sites[0].slug);
         }
       })
       .catch(() => {});
+  }
+
+  useEffect(() => {
+    reloadSites();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  async function handleAddSite(preset) {
+    setAddSiteStatus((prev) => ({ ...prev, [preset.slug]: "adding" }));
+    try {
+      const res = await fetch("/api/admin/add-site", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ secret, ...preset }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setAddSiteStatus((prev) => ({ ...prev, [preset.slug]: "error" }));
+        return;
+      }
+      setAddSiteStatus((prev) => ({ ...prev, [preset.slug]: "done" }));
+      reloadSites(preset.slug);
+    } catch {
+      setAddSiteStatus((prev) => ({ ...prev, [preset.slug]: "error" }));
+    }
+  }
 
   function handlePaste(e) {
     const html = e.clipboardData.getData("text/html");
@@ -380,6 +418,40 @@ export default function AdminImportPage() {
       <p className="search-hint">
         ポイントサイトのページで案件一覧を選択してコピーし、下に貼り付けてください。会員限定ページの自動巡回は行いません。
       </p>
+
+      <div className="card" style={{ marginBottom: 16 }}>
+        <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>未対応サイトを追加</h2>
+        <p style={{ fontSize: 12, color: "#6b7280", marginBottom: 12 }}>
+          まだ対応していないポイントサイトはボタン一つで登録できます(URL・交換レートは調査済みの値が入ります)。登録後、下の「対象サイト」で選べるようになります。
+        </p>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+          {NEW_SITE_PRESETS.map((preset) => {
+            const already = sites.some((s) => s.slug === preset.slug);
+            const status = addSiteStatus[preset.slug];
+            return (
+              <button
+                key={preset.slug}
+                type="button"
+                onClick={() => handleAddSite(preset)}
+                disabled={already || status === "adding"}
+                style={{
+                  padding: "8px 14px",
+                  fontSize: 13,
+                  fontWeight: 600,
+                  border: "1px solid var(--color-border)",
+                  borderRadius: "var(--radius)",
+                  background: already ? "#f0fdf4" : "#fff",
+                  color: already ? "#16a34a" : "inherit",
+                  cursor: already ? "default" : "pointer",
+                }}
+              >
+                {already ? `✓ ${preset.name}` : status === "adding" ? `追加中… ${preset.name}` : `+ ${preset.name}`}
+                {status === "error" && " (失敗)"}
+              </button>
+            );
+          })}
+        </div>
+      </div>
 
       <div className="card" style={{ marginBottom: 16 }}>
         <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 6 }}>

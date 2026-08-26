@@ -213,6 +213,7 @@ export default function AdminImportPage() {
   const [sites, setSites] = useState([]);
   const [siteSlug, setSiteSlug] = useState("");
   const [addSiteStatus, setAddSiteStatus] = useState({}); // slug -> "adding" | "done" | "error"
+  const [addSiteError, setAddSiteError] = useState({}); // slug -> エラーメッセージ
   const [rawText, setRawText] = useState("");
   const [pastedHtml, setPastedHtml] = useState("");
   const [pageUrl, setPageUrl] = useState("");
@@ -246,6 +247,7 @@ export default function AdminImportPage() {
 
   async function handleAddSite(preset) {
     setAddSiteStatus((prev) => ({ ...prev, [preset.slug]: "adding" }));
+    setAddSiteError((prev) => ({ ...prev, [preset.slug]: "" }));
     try {
       const res = await fetch("/api/admin/add-site", {
         method: "POST",
@@ -255,12 +257,14 @@ export default function AdminImportPage() {
       const data = await res.json();
       if (!res.ok) {
         setAddSiteStatus((prev) => ({ ...prev, [preset.slug]: "error" }));
+        setAddSiteError((prev) => ({ ...prev, [preset.slug]: data.detail || data.error || `HTTP ${res.status}` }));
         return;
       }
       setAddSiteStatus((prev) => ({ ...prev, [preset.slug]: "done" }));
       reloadSites(preset.slug);
-    } catch {
+    } catch (err) {
       setAddSiteStatus((prev) => ({ ...prev, [preset.slug]: "error" }));
+      setAddSiteError((prev) => ({ ...prev, [preset.slug]: String(err.message || err) }));
     }
   }
 
@@ -428,26 +432,33 @@ export default function AdminImportPage() {
           {NEW_SITE_PRESETS.map((preset) => {
             const already = sites.some((s) => s.slug === preset.slug);
             const status = addSiteStatus[preset.slug];
+            const isError = status === "error";
             return (
-              <button
-                key={preset.slug}
-                type="button"
-                onClick={() => handleAddSite(preset)}
-                disabled={already || status === "adding"}
-                style={{
-                  padding: "8px 14px",
-                  fontSize: 13,
-                  fontWeight: 600,
-                  border: "1px solid var(--color-border)",
-                  borderRadius: "var(--radius)",
-                  background: already ? "#f0fdf4" : "#fff",
-                  color: already ? "#16a34a" : "inherit",
-                  cursor: already ? "default" : "pointer",
-                }}
-              >
-                {already ? `✓ ${preset.name}` : status === "adding" ? `追加中… ${preset.name}` : `+ ${preset.name}`}
-                {status === "error" && " (失敗)"}
-              </button>
+              <div key={preset.slug} style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                <button
+                  type="button"
+                  onClick={() => handleAddSite(preset)}
+                  disabled={already || status === "adding"}
+                  style={{
+                    padding: "8px 14px",
+                    fontSize: 13,
+                    fontWeight: 600,
+                    border: `1px solid ${isError ? "#ff6b6b" : "var(--color-border)"}`,
+                    borderRadius: "var(--radius)",
+                    background: already ? "rgba(0,240,255,0.08)" : "var(--color-surface-2)",
+                    color: already ? "var(--color-primary)" : isError ? "#ff8f8f" : "var(--color-text)",
+                    cursor: already ? "default" : "pointer",
+                  }}
+                >
+                  {already ? `✓ ${preset.name}` : status === "adding" ? `追加中… ${preset.name}` : `+ ${preset.name}`}
+                  {isError && " (失敗)"}
+                </button>
+                {isError && addSiteError[preset.slug] && (
+                  <span style={{ fontSize: 11, color: "#ff8f8f", maxWidth: 220 }}>
+                    {addSiteError[preset.slug]}
+                  </span>
+                )}
+              </div>
             );
           })}
         </div>

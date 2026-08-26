@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import CampaignCard from "./components/CampaignCard";
+import { CATEGORIES } from "../lib/categories";
 
 export default function Page() {
   const [keyword, setKeyword] = useState("");
@@ -71,6 +72,14 @@ export default function Page() {
       <p className="search-hint">
         各ポイントサイトの還元額を横断比較できます。未登録の案件はAIがWeb検索して調べます（少し時間がかかります）。
       </p>
+
+      <div className="chip-row">
+        {CATEGORIES.map((c) => (
+          <a key={c.slug} href={`/category/${c.slug}`} className="chip">
+            {c.name}
+          </a>
+        ))}
+      </div>
 
       {status === "idle" && suggestions.length > 0 && (
         <div className="chip-row">

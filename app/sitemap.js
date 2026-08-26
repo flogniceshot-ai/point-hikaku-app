@@ -1,5 +1,6 @@
 import { searchCampaigns } from "../lib/db";
 import { SITE_URL } from "../lib/site";
+import { CATEGORIES } from "../lib/categories";
 
 export default async function sitemap() {
   const staticRoutes = [
@@ -9,6 +10,12 @@ export default async function sitemap() {
     { url: `${SITE_URL}/terms`, changeFrequency: "monthly", priority: 0.2 },
     { url: `${SITE_URL}/contact`, changeFrequency: "monthly", priority: 0.2 },
   ];
+
+  const categoryRoutes = CATEGORIES.map((c) => ({
+    url: `${SITE_URL}/category/${c.slug}`,
+    changeFrequency: "daily",
+    priority: 0.6,
+  }));
 
   let campaignRoutes = [];
   try {
@@ -29,5 +36,5 @@ export default async function sitemap() {
     // DB接続エラー時などはサイトマップを静的ページのみで返す
   }
 
-  return [...staticRoutes, ...campaignRoutes];
+  return [...staticRoutes, ...categoryRoutes, ...campaignRoutes];
 }

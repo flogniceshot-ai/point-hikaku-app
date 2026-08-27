@@ -35,15 +35,29 @@ function seededPicks(campaigns, count, dateKey) {
   return arr.slice(0, count);
 }
 
+// サーバーの実行環境(Vercelは基本UTC)に関係なく、日本時間で「今日」を判定する。
+// UTCのままだと日本時間の0:00〜8:59の間、日付が前日のままになってしまう
+// (例: 日本時間8/28 0:30 は UTCでは8/27 15:30)。
+function getJstDateParts() {
+  const parts = new Intl.DateTimeFormat("ja-JP", {
+    timeZone: "Asia/Tokyo",
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+  }).formatToParts(new Date());
+  const get = (type) => Number(parts.find((p) => p.type === type)?.value);
+  return { year: get("year"), month: get("month"), day: get("day") };
+}
+
 export default async function Page() {
   let todayPicks = [];
   let todayLabel = "";
   try {
     const campaigns = await searchCampaigns("");
-    const now = new Date();
-    const dateKey = now.toISOString().slice(0, 10);
+    const { year, month, day } = getJstDateParts();
+    const dateKey = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
     todayPicks = seededPicks(campaigns, 6, dateKey);
-    todayLabel = `${now.getMonth() + 1}月${now.getDate()}日`;
+    todayLabel = `${month}月${day}日`;
   } catch {
     // DB接続エラー時は「今日のおすすめ」を出さず、通常の検索UIのみ表示する。
   }

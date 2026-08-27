@@ -19,7 +19,12 @@ function formatFetchedAt(fetchedAt) {
 }
 
 export default function OfferRow({ offer, isTop, rank }) {
-  const isRate = offer.value != null && offer.value < 100;
+  // %還元かどうかは本来campaign.rewardType('rate'/'fixed')で決まる値であり、
+  // offer.value自体の大小では判別できない(例: 80pt固定の少額モニター案件を
+  // 「80%」と誤表示していたバグがあった)。rewardTypeが無い古いデータ経路向けに
+  // 従来のヒューリスティックをフォールバックとして残す。
+  const isRate =
+    offer.rewardType != null ? offer.rewardType === "rate" : offer.value != null && offer.value < 100;
   // ポイント数はサイトごとに交換レートが違う(例: ECナビは10pt=1円)ため、
   // そのままでは他サイトと比較できない。pointRateを掛けた円換算額を併記する。
   const pointRate = offer.pointRate ?? 1;

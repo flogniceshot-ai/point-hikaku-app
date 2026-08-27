@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { SITE_HOMEPAGES, getSiteFaviconUrl, buildDeepAffiliateUrl } from "../../lib/siteHomepages";
+import { getSiteFaviconUrl, getBestOfferUrl } from "../../lib/siteHomepages";
 
 // 最終確認日時を「今日」「3日前」「2026/8/10」のような短い相対表記にする。
 // 古すぎる(30日以上)場合はユーザーが鮮度を疑えるよう、あえて年月日で表示する。
@@ -30,10 +30,8 @@ export default function OfferRow({ offer, isTop, rank }) {
   // メディア名・還元額どちらのリンク先も、本来はASP発行のアフィリエイトリンク(mediaAffiliateUrl)に統一する。
   // 以前は還元額側だけ出典元ページ(sourceUrl)に飛ばしていたため、最も目立つ数字をクリックしても
   // アフィリエイト計測されないケースがあった(会員登録が発生してもポイ活ナビ経由と計測されない)。
-  // まだアフィリエイトリンク未発行のサイトは、出典元の引用ブログではなく、
-  // サイト本体のトップページ(SITE_HOMEPAGES)を暫定的に使う。
-  const clickUrl =
-    buildDeepAffiliateUrl(offer) || offer.mediaAffiliateUrl || SITE_HOMEPAGES[offer.siteSlug] || offer.sourceUrl;
+  // リンク優先順位はlib/siteHomepages.jsのgetBestOfferUrlに集約(CampaignCard/OfferRow共通)。
+  const clickUrl = getBestOfferUrl(offer);
   const faviconUrl = getSiteFaviconUrl(offer.siteSlug);
   const siteNameContent = (
     <>

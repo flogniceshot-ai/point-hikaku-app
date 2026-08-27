@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import OfferRow from "./OfferRow";
-import { SITE_HOMEPAGES, buildDeepAffiliateUrl } from "../../lib/siteHomepages";
+import { getBestOfferUrl } from "../../lib/siteHomepages";
 
 const SORT_OPTIONS = [
   { key: "value", label: "還元額順" },
@@ -20,16 +20,10 @@ export default function CampaignCard({ campaign }) {
     return offers;
   }, [offers, sortKey]);
   // 案件名クリックは、ベストオファー(先頭=還元額最大)のアフィリエイトリンクへ。
-  // まだアフィリエイトリンク未発行のサイトは、出典元の引用ブログ(sourceUrl)ではなく
-  // サイト本体のトップページ(SITE_HOMEPAGES)を暫定的に使う。
+  // リンク優先順位はlib/siteHomepages.jsのgetBestOfferUrlに集約(CampaignCard/OfferRow共通)。
   // 自社の案件詳細ページ(履歴グラフ付き)へは、各行のポイント数クリックから移動する。
   const bestOffer = offers[0];
-  const bestClickUrl = bestOffer
-    ? buildDeepAffiliateUrl(bestOffer) ||
-      bestOffer.mediaAffiliateUrl ||
-      SITE_HOMEPAGES[bestOffer.siteSlug] ||
-      bestOffer.sourceUrl
-    : null;
+  const bestClickUrl = getBestOfferUrl(bestOffer);
   return (
     <div className="card campaign-card">
       <div className="campaign-card-header">
